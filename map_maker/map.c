@@ -2,43 +2,124 @@
 #include <stdio.h>
 #include <string.h>
 
-#define PLACES 2
-#define MAX_FILENAME 20
+#define FILENAME    "1.bin"
+#define FILECSV     "mapa1.csv"
+#define WIDTH       20
+#define HEIGHT      10
+#define XG          20
+#define YG          10
 
-typedef struct el {
-    char val[ MAX_FILENAME ];
-    struct el *next;
-} Element;
+#define ZERO        0
 
-void add( Element *first, char tab[ MAX_FILENAME ] ) {
-    Element *wsk = first, *new;
-    while( wsk -> next != NULL )
-        wsk = wsk -> next;
+#define FLOOR           1
+#define WALL            2
+#define STOP_MONSTER    3
+#define PLAYER          4
+#define MONSTER         5
+#define BOX             1
 
-    wsk -> next = new;
-    strcpy( new -> val, tab );
-    new -> next = NULL;
-}
+#define RAT         1
+#define PIG         2
+#define COW         3
+#define CYCLOP      4
+#define WOLF        5
+#define SKELETON    6
+#define TROLL       7
+#define DRAGON      8
+#define ZOMBIE      9
+
+#pragma pack(push)
+#pragma pack(1)
+
+typedef struct {
+    int type;
+    int id;
+    int x;
+    int y;
+} Obj;
+
+#pragma pack(pop)
 
 int main() {
-    int placesCount = PLACES;
-    int currentPlace = 1;
-
-    Element *first;
-
-    first -> val = "start.bin\0";
-    first -> next = NULL;
-
-    add( first, "zadanie1.bin\0" );
-    add( first, "zadanie2.bin\0" );
-
     FILE *file;
-    file = fopen( "settings.bin", "wb" );
+    file = fopen( FILENAME, "wb" );
 
-    Element *curr = first;
+    int hei = HEIGHT, wid = WIDTH;
+    int xg = XG, yg = YG;
+    int x, y;
 
-    while( curr != NULL ) {
-        fwrite( curr -> val, sizeof())
+    fwrite( &hei, sizeof( int ), 1, file );
+    fwrite( &wid, sizeof( int ), 1, file );
+    fwrite( &yg, sizeof( int ), 1, file );
+    fwrite( &xg, sizeof( int ), 1, file );
+
+    y=1;
+    x=1;
+
+    FILE *mapa;
+    mapa = fopen( FILECSV, "r" );
+
+    char c;
+    Obj o;
+
+    while( ( c = fgetc( mapa ) ) != EOF ) {
+        if( c == '\n' ) {
+            y++;
+            continue;
+        }
+        getc( mapa );
+        switch( c ) {
+            case 'w':
+                o.type = WALL;
+                o.id   = ZERO;
+                o.x    = x;
+                o.y    = y;
+                break;
+            case 'G':
+                o.type = PLAYER;
+                o.id   = ZERO;
+                o.x    = x;
+                o.y    = y;
+                break;
+            case 'f':
+                o.type = FLOOR;
+                o.id   = ZERO;
+                o.x    = x;
+                o.y    = y;
+                break;
+            case 'n':
+                o.type = STOP_MONSTER;
+                o.id   = ZERO;
+                o.x    = x;
+                o.y    = y;
+                break;
+            case 'm':
+                o.type = STOP_MONSTER;
+                o.id   = ZERO;
+                o.x    = x;
+                o.y    = y;
+                break;
+            case 'Q':
+                o.type = BOX;
+                o.id   = ZERO;
+                o.x    = x;
+                o.y    = y;
+                break;
+            case 'R':
+                o.type = MONSTER;
+                o.id   = RAT;
+                o.x    = x;
+                o.y    = y;
+                break;
+            default:
+                o.type = FLOOR;
+                o.id   = ZERO;
+                o.x    = x;
+                o.y    = y;
+                break;
+        }
+        fwrite( &o, sizeof( Obj ), 1, file );
+        x++;
     }
 
     return 0;

@@ -9,39 +9,14 @@
 #define WALL 1
 #define PLAYER 2
 
-void init_map( Mapa mapa[5][5], int height, int width );
+void load_map( Mapa *map );
 void print_map( WINDOW *win, Mapa mapa[5][5], Player player, int height, int width );
 void playGame( WINDOW *win ) {
 
-    Mapa mapa[ 5 ][ 5 ];
-    init_map( mapa, 5, 5 );
-
-    mapa[ 0 ][ 0 ].type = 1;
-    mapa[ 0 ][ 1 ].type = 1;
-    mapa[ 0 ][ 2 ].type = 1;
-    mapa[ 0 ][ 3 ].type = 1;
-    mapa[ 0 ][ 4 ].type = 1;
-
-    mapa[ 1 ][ 0 ].type = 1;
-    mapa[ 1 ][ 1 ].type = PLAYER;
-    mapa[ 1 ][ 4 ].type = 1;
-
-    mapa[ 2 ][ 0 ].type = 1;
-    mapa[ 2 ][ 4 ].type = 1;
-
-    mapa[ 3 ][ 0 ].type = 1;
-    mapa[ 3 ][ 4 ].type = 1;
-
-    mapa[ 4 ][ 0 ].type = 1;
-    mapa[ 4 ][ 1 ].type = 1;
-    mapa[ 4 ][ 2 ].type = 1;
-    mapa[ 4 ][ 3 ].type = 1;
-    mapa[ 4 ][ 4 ].type = 1;
-
+    Mapa *map;
     Player player;
-    player.x = 1;
-    player.y = 1;
 
+    load_map( map );
 
     wclear( win );
     printBorder( win );
@@ -56,39 +31,25 @@ void playGame( WINDOW *win ) {
                 getch();
                 c=getch();
                 switch( c ) {
-                    case 'A':
-                        if( mapa[ player.y - 1 ][ player.x ].type == FLOOR ) {
-                            mapa[ player.y - 1 ][ player.x ].type = PLAYER;
-                            mapa[ player.y ][ player.x ].type = FLOOR;
-                            player.y--;
-                        }
+                    case 'A': // Up
+
                         break;
-                    case 'B':
-                        if( mapa[ player.y + 1 ][ player.x ].type == FLOOR ) {
-                            mapa[ player.y + 1 ][ player.x ].type = PLAYER;
-                            mapa[ player.y ][ player.x ].type = FLOOR;
-                            player.y++;
-                        }
+                    case 'B': // Down
+
                         break;
-                    case 'C':
-                        if( mapa[ player.y ][ player.x + 1 ].type == FLOOR ) {
-                            mapa[ player.y ][ player.x + 1 ].type = PLAYER;
-                            mapa[ player.y ][ player.x ].type = FLOOR;
-                            player.x++;
-                        }
+                    case 'C': // Right
+
                         break;
-                    case 'D':
-                        if( mapa[ player.y ][ player.x - 1 ].type == FLOOR ) {
-                            mapa[ player.y ][ player.x - 1 ].type = PLAYER;
-                            mapa[ player.y ][ player.x ].type = FLOOR;
-                            player.x--;
-                        }
+                    case 'D': // Left
+
+                        break;
+                    default:
                         break;
                 }
             }
         } // kbhit
         printBorder( win );
-        print_map( win, mapa, player, 5, 5 );
+        //print_map( win, mapa, player, 5, 5 );
         wrefresh( win );
         refresh();
     }
@@ -120,12 +81,12 @@ void print_map( WINDOW *win, Mapa mapa[5][5], Player player, int height, int wid
     }
 }
 
-void init_map( Mapa mapa[5][5], int height, int width ) {
-    int i, j;
-    for( i = 0; i < height; i++ ) {
-        for( j = 1; j < width; j++ ) {
-            mapa[ i ][ j ].type = FLOOR;
-            mapa[ i ][ j ].id = 0;
-        }
-    }
+void load_map( Mapa *map ) {
+    FILE *file;
+    file = fopen( "map/main.dat", "rb" );
+
+    MapSettings settings;
+    fread( &settings, sizeof( MapSettings ), 1, file );
+    fclose( file );
+
 }
