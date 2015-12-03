@@ -2,12 +2,6 @@
 #include <stdio.h>
 #include <string.h>
 
-#define FILECSV     "mapa1.csv"
-#define WIDTH       20
-#define HEIGHT      10
-#define XG          20
-#define YG          10
-
 #define ZERO        0
 
 #define FLOOR           1
@@ -15,7 +9,7 @@
 #define STOP_MONSTER    3
 #define PLAYER          4
 #define MONSTER         5
-#define BOX             1
+#define BOX             6
 
 #define RAT         1
 #define PIG         2
@@ -40,16 +34,16 @@ typedef struct {
 #pragma pack(pop)
 
 int main( int argc, char *argv[] ) {
-    if( argc != 3 ) {
-        printf( "Uzycie: %s mapa.csv mapa.bin\n", argv[ 0 ] );
+    if( argc != 7 ) {
+        printf( "Uzycie: %s mapa.csv mapa.bin wysokosc szerokosc y_gracza x_gracza\n", argv[ 0 ] );
         return 1;
     }
 
     FILE *file;
     file = fopen( argv[ 2 ], "wb" );
 
-    int hei = HEIGHT, wid = WIDTH;
-    int xg = XG, yg = YG;
+    int hei = atoi( argv[ 3 ] ), wid = atoi( argv[ 4 ] );
+    int xg = atoi( argv[ 6 ] ), yg = atoi( argv[ 5 ] );
     int x, y;
 
     fwrite( &hei, sizeof( int ), 1, file );
