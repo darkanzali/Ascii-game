@@ -2,7 +2,6 @@
 #include <stdio.h>
 #include <string.h>
 
-#define FILENAME    "1.bin"
 #define FILECSV     "mapa1.csv"
 #define WIDTH       20
 #define HEIGHT      10
@@ -40,9 +39,14 @@ typedef struct {
 
 #pragma pack(pop)
 
-int main() {
+int main( int argc, char *argv[] ) {
+    if( argc != 3 ) {
+        printf( "Uzycie: %s mapa.csv mapa.bin\n", argv[ 0 ] );
+        return 1;
+    }
+
     FILE *file;
-    file = fopen( FILENAME, "wb" );
+    file = fopen( argv[ 2 ], "wb" );
 
     int hei = HEIGHT, wid = WIDTH;
     int xg = XG, yg = YG;
@@ -57,7 +61,7 @@ int main() {
     x=1;
 
     FILE *mapa;
-    mapa = fopen( FILECSV, "r" );
+    mapa = fopen( argv[ 1 ], "r" );
 
     char c;
     Obj o;
