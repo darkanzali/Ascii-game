@@ -21,14 +21,17 @@ typedef struct { // Gracz
     int armor; // Id zbroi którą nosi gracz
 } Player;
 
-typedef struct { // Potwór
+typedef struct mnstr { // Potwór
     int color; // Kolor kratki reprezentującej potwora
     char letter; // Literka identyfikująca rodzaj potwora
     char name[ MAX_MONSTER_NAME ]; // Nazwa potwora
     int hp; // Życie potwora
+    int x;
+    int y;
     int weapon; // Id broni w ręku potwora
     int armor; // Id zbroi którą nosi potwór
-} Monster_list;
+    struct mnstr *next;
+} Monster;
 
 typedef struct { // Broń
     int atk; // Moc ataku broni
@@ -40,10 +43,11 @@ typedef struct { // Zbroja
     char name[ MAX_ITEM_NAME ]; // Nazwa zbroi
 } Armors;
 
-typedef struct {
+typedef struct mp {
     int type;
     int id;
-} Map;
+    struct mp *next;
+} Map; // Mapa
 
 #pragma pack(pop)
 

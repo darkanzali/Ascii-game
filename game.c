@@ -9,14 +9,17 @@
 #define WALL 1
 #define PLAYER 2
 
-void load_map( Mapa *map );
-void print_map( WINDOW *win, Mapa mapa[5][5], Player player, int height, int width );
+//void load_map( Mapa *map );
+//void print_map( WINDOW *win, Mapa mapa[5][5], Player player, int height, int width );
 void playGame( WINDOW *win ) {
 
-    Mapa *map;
+    Map *fmap=NULL;
     Player player;
+    Monster *fmonster=NULL;
 
-    load_map( map );
+    load_map( fmap );
+    load_player( &player );
+    load_monsters( fmonster );
 
     wclear( win );
     printBorder( win );
@@ -55,7 +58,7 @@ void playGame( WINDOW *win ) {
     }
 }
 
-void print_map( WINDOW *win, Mapa mapa[5][5], Player player, int height, int width ) {
+/*void print_map( WINDOW *win, Mapa mapa[5][5], Player player, int height, int width ) {
     init_pair( FLOOR, COLOR_BLACK, COLOR_WHITE );
     init_pair( WALL, COLOR_BLUE, COLOR_RED );
     init_pair( PLAYER, COLOR_RED, COLOR_BLUE );
@@ -89,4 +92,4 @@ void load_map( Mapa *map ) {
     fread( &settings, sizeof( MapSettings ), 1, file );
     fclose( file );
 
-}
+}*/
