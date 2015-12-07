@@ -15,8 +15,8 @@
 #define BOX             6
 #define TELEPORT        7
 
-void print_map( char filename[], Player *player, WINDOW *win );
-void playGame( WINDOW *win ) {
+void print_map( char filename[], Player *player, WINDOW *win, WINDOW *twin );
+void playGame( WINDOW *win, WINDOW *twin ) {
 
     Player player;
     Monster *fmonster=NULL;
@@ -24,11 +24,17 @@ void playGame( WINDOW *win ) {
     wclear( win );
     printBorder( win );
 
-    print_map( MAPFILE, &player, win );
+    print_map( MAPFILE, &player, win, twin );
     wrefresh( win );
     refresh();
     //load_player( &player );
     //load_monsters( fmonster );
+
+    init_pair( FLOOR, COLOR_BLACK, COLOR_BLACK );
+    init_pair( WALL, COLOR_WHITE, COLOR_WHITE );
+    init_pair( PLAYER, COLOR_WHITE, COLOR_GREEN );
+    init_pair( TELEPORT, COLOR_RED, COLOR_CYAN );
+    init_pair( BOX, COLOR_WHITE, COLOR_MAGENTA );
 
     char c;
     while( 1 ) {
@@ -41,29 +47,80 @@ void playGame( WINDOW *win ) {
                 c=getch();
                 switch( c ) {
                     case 'A': // Up
+                        wmove( win, player.y - 1, player.x );
+                        if( ( winch( win ) & A_CHARTEXT ) != 87 ) {
+                            player.y--;
+                            wattron( win, COLOR_PAIR( PLAYER ) );
+                            wprintw( win, "G" );
+                            wattroff( win, COLOR_PAIR( PLAYER ) );
 
+                            wmove( win, player.y + 1, player.x );
+
+                            wattron( win, COLOR_PAIR( FLOOR ) );
+                            wprintw( win, "F" );
+                            wattroff( win, COLOR_PAIR( FLOOR ) );
+                        }
                         break;
                     case 'B': // Down
+                        wmove( win, player.y + 1, player.x );
+                        if( ( winch( win ) & A_CHARTEXT ) != 87 ) {
+                            player.y++;
+                            wattron( win, COLOR_PAIR( PLAYER ) );
+                            wprintw( win, "G" );
+                            wattroff( win, COLOR_PAIR( PLAYER ) );
 
+                            wmove( win, player.y - 1, player.x );
+
+                            wattron( win, COLOR_PAIR( FLOOR ) );
+                            wprintw( win, "F" );
+                            wattroff( win, COLOR_PAIR( FLOOR ) );
+                        }
                         break;
                     case 'C': // Right
+                        wmove( win, player.y, player.x + 1 );
+                        if( ( winch( win ) & A_CHARTEXT ) != 87 ) {
+                            player.x++;
+                            wattron( win, COLOR_PAIR( PLAYER ) );
+                            wprintw( win, "G" );
+                            wattroff( win, COLOR_PAIR( PLAYER ) );
 
+                            wmove( win, player.y, player.x - 1 );
+
+                            wattron( win, COLOR_PAIR( FLOOR ) );
+                            wprintw( win, "F" );
+                            wattroff( win, COLOR_PAIR( FLOOR ) );
+                        }
                         break;
                     case 'D': // Left
+                        wmove( win, player.y, player.x - 1 );
+                        if( ( winch( win ) & A_CHARTEXT ) != 87 ) {
+                            player.x--;
+                            wattron( win, COLOR_PAIR( PLAYER ) );
+                            wprintw( win, "G" );
+                            wattroff( win, COLOR_PAIR( PLAYER ) );
 
+                            wmove( win, player.y, player.x + 1 );
+
+                            wattron( win, COLOR_PAIR( FLOOR ) );
+                            wprintw( win, "F" );
+                            wattroff( win, COLOR_PAIR( FLOOR ) );
+                        }
                         break;
                     default:
                         break;
                 }
             }
         } // kbhit
-        //print_map( win, mapa, player, 5, 5 );
+
+        wmove( twin, 1, 1 );
+        wprintw( twin, "%d %d", player.x, player.y );
         wrefresh( win );
+        wrefresh( twin );
         refresh();
     }
 }
 
-void print_map( char filename[], Player *player, WINDOW *win ) {
+void print_map( char filename[], Player *player, WINDOW *win, WINDOW *twin ) {
     FILE *file;
     file = fopen( filename, "rb" );
     int hei, wid;
@@ -98,6 +155,8 @@ void print_map( char filename[], Player *player, WINDOW *win ) {
                     wattron( win, COLOR_PAIR( PLAYER ) );
                     wprintw( win, "G" );
                     wattroff( win, COLOR_PAIR( PLAYER ) );
+                    yg = i;
+                    xg = j;
                     break;
                 case FLOOR:
                     wattron( win, COLOR_PAIR( FLOOR ) );
@@ -125,8 +184,6 @@ void print_map( char filename[], Player *player, WINDOW *win ) {
             }
         }
     }
-    fread( &yg, sizeof( int ), 1, file );
-    fread( &xg, sizeof( int ), 1, file );
     player -> x = xg;
     player -> y = yg;
     fclose( file );

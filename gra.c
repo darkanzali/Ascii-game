@@ -73,7 +73,7 @@ int main() {
                 wclear( textwin );
                 printBorder( textwin );
                 wrefresh( textwin );
-                playGame( mwin );   // 4 Wyjście
+                playGame( mwin, textwin );   // 4 Wyjście
                 break;
             case 2:
                 endGame = false;
