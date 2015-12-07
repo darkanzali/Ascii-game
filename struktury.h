@@ -43,11 +43,10 @@ typedef struct { // Zbroja
     char name[ MAX_ITEM_NAME ]; // Nazwa zbroi
 } Armors;
 
-typedef struct mp {
+typedef struct {
     int type;
     int id;
-    struct mp *next;
-} Map; // Mapa
+} Map_field;
 
 #pragma pack(pop)
 

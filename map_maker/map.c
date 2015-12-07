@@ -10,6 +10,7 @@
 #define PLAYER          4
 #define MONSTER         5
 #define BOX             6
+#define TELEPORT        7
 
 #define RAT         1
 #define PIG         2
@@ -27,8 +28,6 @@
 typedef struct {
     int type;
     int id;
-    int x;
-    int y;
 } Obj;
 
 typedef struct mon {
@@ -107,46 +106,32 @@ int main( int argc, char *argv[] ) {
             case 'w':
                 o.type = WALL;
                 o.id   = ZERO;
-                o.x    = x;
-                o.y    = y;
                 break;
             case 'G':
                 o.type = PLAYER;
                 o.id   = ZERO;
-                o.x    = x;
-                o.y    = y;
-                xg = x;
-                yg = y;
+                xg = x + 1;
+                yg = y + 1;
                 break;
             case 'f':
                 o.type = FLOOR;
                 o.id   = ZERO;
-                o.x    = x;
-                o.y    = y;
                 break;
             case 'n':
                 o.type = STOP_MONSTER;
                 o.id   = ZERO;
-                o.x    = x;
-                o.y    = y;
                 break;
             case 'm':
                 o.type = STOP_MONSTER;
                 o.id   = ZERO;
-                o.x    = x;
-                o.y    = y;
                 break;
             case 'Q':
                 o.type = BOX;
                 o.id   = ZERO;
-                o.x    = x;
-                o.y    = y;
                 break;
             case 'R':
                 o.type = MONSTER;
                 o.id   = RAT;
-                o.x    = x;
-                o.y    = y;
                 monsters++;
                 if( fmonster -> type == -1 ) {
                     fmonster -> type = MONSTER;
@@ -156,13 +141,17 @@ int main( int argc, char *argv[] ) {
                 } else
                     add_monster( fmonster, MONSTER, RAT, x, y );
                 break;
+            case 'T':
+                o.type = TELEPORT;
+                o.id   = ZERO;
+                break;
             default:
                 o.type = FLOOR;
                 o.id   = ZERO;
-                o.x    = x;
-                o.y    = y;
                 break;
         }
+        printf( "%d", o.type );
+        if( x % wid == 0 ) printf( "\n" );
         fwrite( &o, sizeof( Obj ), 1, file );
         x++;
     }
