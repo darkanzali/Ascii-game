@@ -1,12 +1,7 @@
 #ifndef struktury_h
 #define struktury_h
 
-#define MAX_X 100 // Maksymalna szerokość miejsc
-#define MAX_Y 100 // Maksymalna wysokość miejsc
-#define PLACES 10 // Ilość miejsc na mapie
-#define MAX_PLACE_NAME 20 // Maksymalna długość nazwy miejsca
-#define MAX_ITEM_NAME 10 // Maksymalna długość nazwy przedmiotów w grze
-#define MAX_MONSTER_NAME 10 // Maksymalna długość nazwy potwora
+#include "definicje.h"
 
 #pragma pack(push)
 #pragma pack(1)
@@ -19,6 +14,7 @@ typedef struct { // Gracz
     int hp; // Życie gracza
     int weapon; // Id broni w ręku gracza
     int armor; // Id zbroi którą nosi gracz
+    int fieldChar; //
 } Player;
 
 typedef struct mnstr { // Potwór

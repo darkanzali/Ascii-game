@@ -16,7 +16,7 @@ funkcje.o: funkcje.c
 	gcc -c funkcje.c -o funkcje.o
 
 gra: gra.o okna.o menu.o game.o funkcje.o
-	gcc gra.o okna.o menu.o game.o funkcje.o -o gra -lncurses
+	gcc gra.o okna.o menu.o game.o funkcje.o -o gra -Wall -Wparentheses -lncursesw
 	-rm *.o
 
 clean:

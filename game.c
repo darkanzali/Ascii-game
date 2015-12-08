@@ -1,25 +1,15 @@
-#include <ncurses.h>
+#include <ncursesw/ncurses.h>
 
 #include "struktury.h"
 #include "game.h"
 #include "okna.h"
-#include "funkcje.h"
-
-#define MAPFILE         "files/1.bin"
-
-#define FLOOR           1
-#define WALL            2
-#define STOP_MONSTER    3
-#define PLAYER          4
-#define MONSTER         5
-#define BOX             6
-#define TELEPORT        7
 
 void print_map( char filename[], Player *player, WINDOW *win, WINDOW *twin );
-void playGame( WINDOW *win, WINDOW *twin ) {
+int playGame( int world, WINDOW *win, WINDOW *twin ) {
 
     Player player;
     Monster *fmonster=NULL;
+    bool goMenu = false;
 
     wclear( win );
     printBorder( win );
@@ -36,79 +26,78 @@ void playGame( WINDOW *win, WINDOW *twin ) {
     init_pair( TELEPORT, COLOR_RED, COLOR_CYAN );
     init_pair( BOX, COLOR_WHITE, COLOR_MAGENTA );
 
-    char c;
-    while( 1 ) {
+    int c;
+    while( !goMenu ) {
         if( kbhit() ) {
             c = getch();
+            switch( c ) {
+                case 'q':
+                    c = getch();
+                    if( c == 't' )
+                        goMenu = true;
+                    break;
+                case KEY_UP: // Up
+                    wmove( win, player.y - 1, player.x );
+                    if( ( winch( win ) & A_CHARTEXT ) != 87 ) {
+                        player.y--;
+                        wattron( win, COLOR_PAIR( PLAYER ) );
+                        wprintw( win, "G" );
+                        wattroff( win, COLOR_PAIR( PLAYER ) );
 
-            if( c == '\033' )
-            {
-                getch();
-                c=getch();
-                switch( c ) {
-                    case 'A': // Up
-                        wmove( win, player.y - 1, player.x );
-                        if( ( winch( win ) & A_CHARTEXT ) != 87 ) {
-                            player.y--;
-                            wattron( win, COLOR_PAIR( PLAYER ) );
-                            wprintw( win, "G" );
-                            wattroff( win, COLOR_PAIR( PLAYER ) );
-
-                            wmove( win, player.y + 1, player.x );
-
-                            wattron( win, COLOR_PAIR( FLOOR ) );
-                            wprintw( win, "F" );
-                            wattroff( win, COLOR_PAIR( FLOOR ) );
-                        }
-                        break;
-                    case 'B': // Down
                         wmove( win, player.y + 1, player.x );
-                        if( ( winch( win ) & A_CHARTEXT ) != 87 ) {
-                            player.y++;
-                            wattron( win, COLOR_PAIR( PLAYER ) );
-                            wprintw( win, "G" );
-                            wattroff( win, COLOR_PAIR( PLAYER ) );
 
-                            wmove( win, player.y - 1, player.x );
+                        wattron( win, COLOR_PAIR( FLOOR ) );
+                        wprintw( win, "F" );
+                        wattroff( win, COLOR_PAIR( FLOOR ) );
+                    }
+                    break;
+                case KEY_DOWN: // Down
+                    wmove( win, player.y + 1, player.x );
+                    if( ( winch( win ) & A_CHARTEXT ) != 87 ) {
+                        player.y++;
+                        wattron( win, COLOR_PAIR( PLAYER ) );
+                        wprintw( win, "G" );
+                        wattroff( win, COLOR_PAIR( PLAYER ) );
 
-                            wattron( win, COLOR_PAIR( FLOOR ) );
-                            wprintw( win, "F" );
-                            wattroff( win, COLOR_PAIR( FLOOR ) );
-                        }
-                        break;
-                    case 'C': // Right
-                        wmove( win, player.y, player.x + 1 );
-                        if( ( winch( win ) & A_CHARTEXT ) != 87 ) {
-                            player.x++;
-                            wattron( win, COLOR_PAIR( PLAYER ) );
-                            wprintw( win, "G" );
-                            wattroff( win, COLOR_PAIR( PLAYER ) );
+                        wmove( win, player.y - 1, player.x );
 
-                            wmove( win, player.y, player.x - 1 );
+                        wattron( win, COLOR_PAIR( FLOOR ) );
+                        wprintw( win, "F" );
+                        wattroff( win, COLOR_PAIR( FLOOR ) );
+                    }
+                    break;
+                case KEY_RIGHT: // Right
+                    wmove( win, player.y, player.x + 1 );
+                    if( ( winch( win ) & A_CHARTEXT ) != 87 ) {
+                        player.x++;
+                        wattron( win, COLOR_PAIR( PLAYER ) );
+                        wprintw( win, "G" );
+                        wattroff( win, COLOR_PAIR( PLAYER ) );
 
-                            wattron( win, COLOR_PAIR( FLOOR ) );
-                            wprintw( win, "F" );
-                            wattroff( win, COLOR_PAIR( FLOOR ) );
-                        }
-                        break;
-                    case 'D': // Left
                         wmove( win, player.y, player.x - 1 );
-                        if( ( winch( win ) & A_CHARTEXT ) != 87 ) {
-                            player.x--;
-                            wattron( win, COLOR_PAIR( PLAYER ) );
-                            wprintw( win, "G" );
-                            wattroff( win, COLOR_PAIR( PLAYER ) );
 
-                            wmove( win, player.y, player.x + 1 );
+                        wattron( win, COLOR_PAIR( FLOOR ) );
+                        wprintw( win, "F" );
+                        wattroff( win, COLOR_PAIR( FLOOR ) );
+                    }
+                    break;
+                case KEY_LEFT: // Left
+                    wmove( win, player.y, player.x - 1 );
+                    if( ( winch( win ) & A_CHARTEXT ) != 87 ) {
+                        player.x--;
+                        wattron( win, COLOR_PAIR( PLAYER ) );
+                        wprintw( win, "G" );
+                        wattroff( win, COLOR_PAIR( PLAYER ) );
 
-                            wattron( win, COLOR_PAIR( FLOOR ) );
-                            wprintw( win, "F" );
-                            wattroff( win, COLOR_PAIR( FLOOR ) );
-                        }
-                        break;
-                    default:
-                        break;
-                }
+                        wmove( win, player.y, player.x + 1 );
+
+                        wattron( win, COLOR_PAIR( FLOOR ) );
+                        wprintw( win, "F" );
+                        wattroff( win, COLOR_PAIR( FLOOR ) );
+                    }
+                    break;
+                default:
+                    break;
             }
         } // kbhit
 
@@ -143,7 +132,7 @@ void print_map( char filename[], Player *player, WINDOW *win, WINDOW *twin ) {
             switch( m.type ) {
                 case WALL:
                     wattron( win, COLOR_PAIR( WALL ) );
-                    wprintw( win, "W" );
+                    wprintw( win, "#" );
                     wattroff( win, COLOR_PAIR( WALL ) );
                     break;
                 case STOP_MONSTER:
@@ -160,7 +149,7 @@ void print_map( char filename[], Player *player, WINDOW *win, WINDOW *twin ) {
                     break;
                 case FLOOR:
                     wattron( win, COLOR_PAIR( FLOOR ) );
-                    wprintw( win, "F" );
+                    wprintw( win, "." );
                     wattroff( win, COLOR_PAIR( FLOOR ) );
                     break;
                 case MONSTER:
@@ -188,39 +177,3 @@ void print_map( char filename[], Player *player, WINDOW *win, WINDOW *twin ) {
     player -> y = yg;
     fclose( file );
 }
-
-/*void print_map( WINDOW *win, Mapa mapa[5][5], Player player, int height, int width ) {
-    init_pair( FLOOR, COLOR_BLACK, COLOR_WHITE );
-    init_pair( WALL, COLOR_BLUE, COLOR_RED );
-    init_pair( PLAYER, COLOR_RED, COLOR_BLUE );
-
-    int i, j;
-    for( i = 0; i < height; i++ ) {
-        wmove( win, i+1, 1);
-        for( j = 0; j < width; j++ ) {
-            if( mapa[ i ][ j ].type == FLOOR ) {
-                wprintw( win, " " );
-            }
-            if( mapa[ i ][ j ].type == WALL ) {
-                wattron( win, COLOR_PAIR( WALL ) );
-                wprintw( win, " " );
-                wattroff( win, COLOR_PAIR( WALL ) );
-            }
-            if( mapa[ i ][ j ].type == PLAYER ) {
-                wattron( win, COLOR_PAIR( PLAYER ) );
-                wprintw( win, "P" );
-                wattroff( win, COLOR_PAIR( PLAYER ) );
-            }
-        }
-    }
-}
-
-void load_map( Mapa *map ) {
-    FILE *file;
-    file = fopen( "map/main.dat", "rb" );
-
-    MapSettings settings;
-    fread( &settings, sizeof( MapSettings ), 1, file );
-    fclose( file );
-
-}*/

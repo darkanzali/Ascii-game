@@ -1,4 +1,4 @@
-#include <ncurses.h>
+#include <ncursesw/ncurses.h>
 
 #include "menu.h"
 #include "okna.h"
@@ -8,8 +8,7 @@ int menu( WINDOW *win ) {
     int startx = ( 80 - 11 ) / 2;
     int starty = ( 20 - 4 ) / 2;
     int line=1;
-    char c;
-    noecho();
+    int c;
     do {
         wclear( win );
         printBorder( win );
@@ -46,7 +45,7 @@ int menu( WINDOW *win ) {
         }
 
         wmove( win, starty + 2, startx );
-        wprintw( win, "Konwersja" );
+        wprintw( win, "Pomoc" );
         if( line == 3 )
             wattroff( win, COLOR_PAIR( 1 ) );
 
@@ -66,23 +65,18 @@ int menu( WINDOW *win ) {
         refresh();
 
         c = getch();
-        if( c == '\033' )
-        {
-            getch();
-            c=getch();
-            switch( c ) {
-                case 'A':
-                    if( line > 1 )
-                        line--;
-                    break;
-                case 'B':
-                    if( line < 4 )
-                        line++;
-                    break;
-                default:
-                    line=line;
-                    break;
-            }
+        switch( c ) {
+            case KEY_UP:
+                if( line > 1 )
+                    line--;
+                break;
+            case KEY_DOWN:
+                if( line < 4 )
+                    line++;
+                break;
+            default:
+                line=line;
+                break;
         }
     } while( c != '\n' );
 
