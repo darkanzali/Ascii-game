@@ -15,8 +15,11 @@ game.o: game.c
 funkcje.o: funkcje.c
 	gcc -c funkcje.c -o funkcje.o
 
-gra: gra.o okna.o menu.o game.o funkcje.o
-	gcc gra.o okna.o menu.o game.o funkcje.o -o gra -Wall -Wparentheses -lncursesw
+colors.o: colors.c
+	gcc -c colors.c -o colors.o
+
+gra: gra.o okna.o menu.o game.o funkcje.o colors.o
+	gcc gra.o okna.o menu.o game.o funkcje.o colors.o -o gra -Wall -Wparentheses -lncursesw
 	-rm *.o
 
 clean:

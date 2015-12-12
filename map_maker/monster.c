@@ -12,7 +12,6 @@
 #pragma pack(1)
 
 typedef struct { // Potwór
-    int color; // Kolor kratki reprezentującej potwora
     char letter; // Literka identyfikująca rodzaj potwora
     char name[ MAX_MONSTER_NAME ]; // Nazwa potwora
     int hp; // Życie potwora
@@ -32,35 +31,30 @@ int main() {
 
     Monster m[ ILE ];
 
-    m[ 0 ].color    = ATK_IF_ATK;
-    m[ 0 ].letter   = 'R';
+    m[ 0 ].letter   = 'S';
     strcpy( m[ 0 ].name, "Szczur" );
-    m[ 0 ].hp       = 20;
+    m[ 0 ].hp       = 10;
     m[ 0 ].weapon   = 0;
     m[ 0 ].armor    = 0;
 
-    m[ 1 ].color    = NO_ATK;
-    m[ 1 ].letter   = 'P';
-    strcpy( m[ 1 ].name, "Swinia" );
+    m[ 1 ].letter   = 'M';
+    strcpy( m[ 1 ].name, "Menel" );
     m[ 1 ].hp       = 10;
     m[ 1 ].weapon   = 0;
     m[ 1 ].armor    = 0;
 
-    m[ 2 ].color    = NO_ATK;
-    m[ 2 ].letter   = 'K';
-    strcpy( m[ 2 ].name, "Krowa" );
+    m[ 2 ].letter   = 'G';
+    strcpy( m[ 2 ].name, "Goblin" );
     m[ 2 ].hp       = 10;
     m[ 2 ].weapon   = 0;
     m[ 2 ].armor    = 0;
 
-    m[ 3 ].color    = ATK_IF_ATK;
     m[ 3 ].letter   = 'C';
     strcpy( m[ 3 ].name, "Cyklop" );
     m[ 3 ].hp       = 10;
     m[ 3 ].weapon   = 0;
     m[ 3 ].armor    = 0;
 
-    m[ 4 ].color    = DEFAULT_ATK;
     m[ 4 ].letter   = 'W';
     strcpy( m[ 4 ].name, "Wilk" );
     m[ 4 ].hp       = 10;
@@ -70,15 +64,15 @@ int main() {
     fwrite( m, sizeof( Monster ), ILE, file );
 
 
-/*  1. szczur   rat         CYAN
-    2. świnia   pig         GREEN
-    3. krowa    cow         GREEN
-    4. cyklop   cyclop      CYAN
-    5. wilk     wolf        RED
-    6. szkielet skeleton    RED
-    7. troll    troll       RED
-    8. smok     dragon      RED
-    9. zombie   zombie      RED
+/*  1. szczur
+    2. menel
+    3. goblin
+    4. cyklop
+    5. wilk
+    6. szkielet
+    7. troll
+    8. smok
+    9. zombie
 */
 
     return 0;

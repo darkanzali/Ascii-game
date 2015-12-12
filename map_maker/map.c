@@ -13,8 +13,8 @@
 #define TELEPORT        7
 
 #define RAT         1
-#define PIG         2
-#define COW         3
+#define MENEL       2
+#define GNOM        3
 #define CYCLOP      4
 #define WOLF        5
 #define SKELETON    6

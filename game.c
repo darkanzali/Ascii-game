@@ -1,30 +1,27 @@
 #include <ncursesw/ncurses.h>
+#include <stdlib.h>
 
 #include "struktury.h"
 #include "game.h"
 #include "okna.h"
 
-void print_map( char filename[], Player *player, WINDOW *win, WINDOW *twin );
+void print_map( char filename[], Player *player, Monster *monsters, WINDOW *win, WINDOW *twin );
+void prch_xy( WINDOW *win, int type, int id, int y, int x );
+void load_monsters( Monster **monsters, WINDOW *win );
 int playGame( int world, WINDOW *win, WINDOW *twin ) {
 
     Player player;
-    Monster *fmonster=NULL;
+    Monster *monsters;
     bool goMenu = false;
-
     wclear( win );
     printBorder( win );
+    init_colors();
 
-    print_map( MAPFILE, &player, win, twin );
+    load_monsters( &monsters, twin );
+    wmove( twin, 1, 1 );
+    print_map( MAPFILE, &player, monsters, win, twin );
     wrefresh( win );
     refresh();
-    //load_player( &player );
-    //load_monsters( fmonster );
-
-    init_pair( FLOOR, COLOR_BLACK, COLOR_BLACK );
-    init_pair( WALL, COLOR_WHITE, COLOR_WHITE );
-    init_pair( PLAYER, COLOR_WHITE, COLOR_GREEN );
-    init_pair( TELEPORT, COLOR_RED, COLOR_CYAN );
-    init_pair( BOX, COLOR_WHITE, COLOR_MAGENTA );
 
     int c;
     while( !goMenu ) {
@@ -32,68 +29,78 @@ int playGame( int world, WINDOW *win, WINDOW *twin ) {
             c = getch();
             switch( c ) {
                 case 'q':
-                    c = getch();
-                    if( c == 't' )
-                        goMenu = true;
+                    if( true ) {
+                        char save_txt[ 3 ][ 80 ];
+                        int i, j;
+                        for( i = 1; i < 3; i++ )
+                            for( j = 1; j < 79; j++ )
+                                save_txt[ i ][ j ] = ( mvwinch( twin, i, j ) & A_CHARTEXT );
+                        wclear( twin );
+                        printBorder( twin );
+                        printBorder( win );
+                        wmove( twin, 1, 1 );
+                        wprintw( twin, "Czy chcesz wyjść do menu? (t/n)" );
+                        wrefresh( twin );
+                        wrefresh( win );
+                        do {
+                            c = getch();
+                        } while( c != 't' && c != 'n' );
+                        if( c == 't' )
+                            goMenu = true;
+                        else
+                            for( i = 1; i < 3; i++ ) {
+                                wmove( twin, i, 1 );
+                                for( j = 1; j < 79; j++ )
+                                    wprintw( twin, "%c", save_txt[ i ][ j ] );
+                            }
+                    }
                     break;
                 case KEY_UP: // Up
-                    wmove( win, player.y - 1, player.x );
-                    if( ( winch( win ) & A_CHARTEXT ) != 87 ) {
-                        player.y--;
-                        wattron( win, COLOR_PAIR( PLAYER ) );
-                        wprintw( win, "G" );
-                        wattroff( win, COLOR_PAIR( PLAYER ) );
-
-                        wmove( win, player.y + 1, player.x );
-
-                        wattron( win, COLOR_PAIR( FLOOR ) );
-                        wprintw( win, "F" );
-                        wattroff( win, COLOR_PAIR( FLOOR ) );
+                    if( true ) {
+                        char fieldToGo = ( mvwinch( win, player.y - 1, player.x ) & A_CHARTEXT );
+                        if( fieldToGo == FLOOR_CH || fieldToGo == STOP_MONSTER_CH ) {
+                            player.y--;
+                            chtype sav = mvwinch( win, player.y, player.x );
+                            prch_xy( win, PLAYER, ZERO, player.y, player.x );
+                            prch_xy( win, ZERO, player.fieldch, player.y + 1, player.x );
+                            player.fieldch = ( sav & A_CHARTEXT );
+                        }
                     }
                     break;
                 case KEY_DOWN: // Down
-                    wmove( win, player.y + 1, player.x );
-                    if( ( winch( win ) & A_CHARTEXT ) != 87 ) {
-                        player.y++;
-                        wattron( win, COLOR_PAIR( PLAYER ) );
-                        wprintw( win, "G" );
-                        wattroff( win, COLOR_PAIR( PLAYER ) );
-
-                        wmove( win, player.y - 1, player.x );
-
-                        wattron( win, COLOR_PAIR( FLOOR ) );
-                        wprintw( win, "F" );
-                        wattroff( win, COLOR_PAIR( FLOOR ) );
+                    if( true ) {
+                        char fieldToGo = ( mvwinch( win, player.y + 1, player.x ) & A_CHARTEXT );
+                        if( fieldToGo == FLOOR_CH || fieldToGo == STOP_MONSTER_CH ) {
+                            player.y++;
+                            chtype sav = mvwinch( win, player.y, player.x );
+                            prch_xy( win, PLAYER, ZERO, player.y, player.x );
+                            prch_xy( win, ZERO, player.fieldch, player.y - 1, player.x );
+                            player.fieldch = ( sav & A_CHARTEXT );
+                        }
                     }
                     break;
                 case KEY_RIGHT: // Right
-                    wmove( win, player.y, player.x + 1 );
-                    if( ( winch( win ) & A_CHARTEXT ) != 87 ) {
-                        player.x++;
-                        wattron( win, COLOR_PAIR( PLAYER ) );
-                        wprintw( win, "G" );
-                        wattroff( win, COLOR_PAIR( PLAYER ) );
-
-                        wmove( win, player.y, player.x - 1 );
-
-                        wattron( win, COLOR_PAIR( FLOOR ) );
-                        wprintw( win, "F" );
-                        wattroff( win, COLOR_PAIR( FLOOR ) );
+                    if( true ) {
+                        char fieldToGo = ( mvwinch( win, player.y, player.x + 1 ) & A_CHARTEXT );
+                        if( fieldToGo == FLOOR_CH || fieldToGo == STOP_MONSTER_CH ) {
+                            player.x++;
+                            chtype sav = mvwinch( win, player.y, player.x );
+                            prch_xy( win, PLAYER, ZERO, player.y, player.x );
+                            prch_xy( win, ZERO, player.fieldch, player.y, player.x - 1 );
+                            player.fieldch = ( sav & A_CHARTEXT );
+                        }
                     }
                     break;
                 case KEY_LEFT: // Left
-                    wmove( win, player.y, player.x - 1 );
-                    if( ( winch( win ) & A_CHARTEXT ) != 87 ) {
-                        player.x--;
-                        wattron( win, COLOR_PAIR( PLAYER ) );
-                        wprintw( win, "G" );
-                        wattroff( win, COLOR_PAIR( PLAYER ) );
-
-                        wmove( win, player.y, player.x + 1 );
-
-                        wattron( win, COLOR_PAIR( FLOOR ) );
-                        wprintw( win, "F" );
-                        wattroff( win, COLOR_PAIR( FLOOR ) );
+                    if( true ) {
+                        char fieldToGo = ( mvwinch( win, player.y, player.x - 1 ) & A_CHARTEXT );
+                        if( fieldToGo == FLOOR_CH || fieldToGo == STOP_MONSTER_CH ) {
+                            player.x--;
+                            chtype sav = mvwinch( win, player.y, player.x );
+                            prch_xy( win, PLAYER, ZERO, player.y, player.x );
+                            prch_xy( win, ZERO, player.fieldch, player.y, player.x + 1 );
+                            player.fieldch = ( sav & A_CHARTEXT );
+                        }
                     }
                     break;
                 default:
@@ -107,21 +114,16 @@ int playGame( int world, WINDOW *win, WINDOW *twin ) {
         wrefresh( twin );
         refresh();
     }
+    free( monsters );
+    return 0;
 }
 
-void print_map( char filename[], Player *player, WINDOW *win, WINDOW *twin ) {
+void print_map( char filename[], Player *player, Monster *monsters, WINDOW *win, WINDOW *twin ) {
     FILE *file;
     file = fopen( filename, "rb" );
     int hei, wid;
-    int xg, yg;
     fread( &hei, sizeof( int ), 1, file );
     fread( &wid, sizeof( int ), 1, file );
-
-    init_pair( FLOOR, COLOR_BLACK, COLOR_BLACK );
-    init_pair( WALL, COLOR_WHITE, COLOR_WHITE );
-    init_pair( PLAYER, COLOR_WHITE, COLOR_GREEN );
-    init_pair( TELEPORT, COLOR_RED, COLOR_CYAN );
-    init_pair( BOX, COLOR_WHITE, COLOR_MAGENTA );
 
     int i, j;
     Map_field m;
@@ -137,15 +139,16 @@ void print_map( char filename[], Player *player, WINDOW *win, WINDOW *twin ) {
                     break;
                 case STOP_MONSTER:
                     wattron( win, COLOR_PAIR( FLOOR ) );
-                    wprintw( win, "S" );
+                    wprintw( win, "\"" );
                     wattroff( win, COLOR_PAIR( FLOOR ) );
                     break;
                 case PLAYER:
                     wattron( win, COLOR_PAIR( PLAYER ) );
-                    wprintw( win, "G" );
+                    wprintw( win, "%c", PLAYER_CH );
                     wattroff( win, COLOR_PAIR( PLAYER ) );
-                    yg = i;
-                    xg = j;
+                    player -> x = j;
+                    player -> y = i;
+                    player -> fieldch = '.';
                     break;
                 case FLOOR:
                     wattron( win, COLOR_PAIR( FLOOR ) );
@@ -154,7 +157,7 @@ void print_map( char filename[], Player *player, WINDOW *win, WINDOW *twin ) {
                     break;
                 case MONSTER:
                     wattron( win, COLOR_PAIR( FLOOR ) );
-                    wprintw( win, " " );
+                    wprintw( win, "%c", monsters[ m.id - 1 ].letter );
                     wattroff( win, COLOR_PAIR( FLOOR ) );
                     break;
                 case TELEPORT:
@@ -173,7 +176,63 @@ void print_map( char filename[], Player *player, WINDOW *win, WINDOW *twin ) {
             }
         }
     }
-    player -> x = xg;
-    player -> y = yg;
+    fclose( file );
+}
+
+void prch_xy( WINDOW *win, int type, int id, int y, int x ) {
+    wmove( win, y, x );
+    if( type == ZERO ) {
+        if( id == '.' ) type = FLOOR;
+        if( id == '\"' ) type = STOP_MONSTER;
+    }
+    switch( type ) {
+        case PLAYER:
+            wattron( win, COLOR_PAIR( PLAYER ) );
+            wprintw( win, "%c", PLAYER_CH );
+            wattroff( win, COLOR_PAIR( PLAYER ) );
+            break;
+        case WALL:
+            wattron( win, COLOR_PAIR( WALL ) );
+            wprintw( win, "%c", WALL_CH );
+            wattroff( win, COLOR_PAIR( WALL ) );
+            break;
+        case STOP_MONSTER:
+            wattron( win, COLOR_PAIR( FLOOR ) );
+            wprintw( win, "%c", STOP_MONSTER_CH );
+            wattroff( win, COLOR_PAIR( FLOOR ) );
+            break;
+        case FLOOR:
+            wattron( win, COLOR_PAIR( FLOOR ) );
+            wprintw( win, "%c", FLOOR_CH );
+            wattroff( win, COLOR_PAIR( FLOOR ) );
+            break;
+        case MONSTER:
+            wattron( win, COLOR_PAIR( FLOOR ) );
+            wprintw( win, " " );
+            wattroff( win, COLOR_PAIR( FLOOR ) );
+            break;
+        case TELEPORT:
+            wattron( win, COLOR_PAIR( TELEPORT ) );
+            wprintw( win, "%c", TELEPORT_CH );
+            wattroff( win, COLOR_PAIR( TELEPORT ) );
+            break;
+        case BOX:
+            wattron( win, COLOR_PAIR( BOX ) );
+            wprintw( win, "%c", BOX_CH );
+            wattroff( win, COLOR_PAIR( BOX ) );
+            break;
+        default:
+            wprintw( win, "E" );
+            break;
+    }
+}
+
+void load_monsters( Monster **monsters, WINDOW *win ) {
+    FILE *file;
+    file = fopen( MONSTERSFILE, "rb" );
+    int count;
+    fread( &count, sizeof( count ), 1, file );
+    *monsters = malloc( count * sizeof( Monster ) );
+    fread( *monsters, sizeof( Monster ), count, file );
     fclose( file );
 }

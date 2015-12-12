@@ -9,19 +9,22 @@
 #include "menu.h"
 #include "okna.h"
 #include "game.h"
+#include "colors.h"
 
 void info_help( WINDOW *win );
+void init_windows( WINDOW *mwin, WINDOW *textwin );
 int main() {
     /*****************/
     /* Inicjalizacja */
     /*****************/
 
+    setlocale( LC_CTYPE, "" );
     initscr(); // Inicjalizacja ncurses
     curs_set( 0 ); // Wyłączenie wyświetlania kursora
     cbreak(); // Wyłączenie oczekiwania na enter, teraz każdy bufor będzie wczytywał tylko jeden znak
     noecho(); // Wyłączenie wyświetlania wpisanego znaku
     keypad( stdscr, TRUE ); // Włączenie pobierania specjalnych klawiszy
-    setlocale( LC_CTYPE, "" );
+    init_colors();
 
     int startx, starty; // Współrzędne lewego górnego rogu okna
     int startx2, starty2;
@@ -58,14 +61,6 @@ int main() {
     startx2 = startx;
     mwin = newwin( hei, wid, starty, startx );
     textwin = newwin( hei2, wid2, starty2, startx2 );
-    refresh();
-    printBorder( mwin );
-    printBorder( textwin );
-    wmove( textwin, 1, 2 );
-    wprintw( textwin, "Gra ASCII" );
-    wmove( textwin, 2, 2 );
-    wprintw( textwin, "© Kamil Poniatowski 2015" );
-    wrefresh( textwin );
 
     /************************/
     /* Deklaracje zmiennych */
@@ -78,9 +73,9 @@ int main() {
     /*******/
 
     while( true ) {
-                                    // 1 Nowa gra
-        switch( menu( mwin ) ) {    // 2 Wczytaj grę
-            case 1:                 // 3 Pomoc// 4 Wyjście
+        init_windows( mwin, textwin);
+        switch( menu( mwin ) ) {    // 1 Nowa gra // 2 Wczytaj grę
+            case 1:                 // 3 Pomoc // 4 Wyjście
                 world = 1;
                 goto gramy;
                 break;
@@ -108,7 +103,7 @@ int main() {
                 exit( 1 );
                 break;
         }
-
+        
         if( endGame )
             break;
     }
@@ -136,16 +131,22 @@ void info_help( WINDOW *win) {
     wmove( win, 9, 2 );
     wprintw( win, "zapomnisz zawsze możesz wrócić do poprzednich poziomów" );
     wmove( win, 11, 2 );
-    wprintw( win, "Aby wrócić do menu kliknij m: " );
+    wprintw( win, "Aby wrócić do menu kliknij m " );
     wrefresh( win );
     int c;
     do {
         c = getch();
-        wmove( win, 11, 33 );
-        wprintw( win, "    " );
-        wmove( win, 11, 33 );
-        wprintw( win, "%c", ( char ) c );
-        wrefresh( win );
-    } while( c != 'k' );
+    } while( c != 'm' );
+}
 
+void init_windows( WINDOW *mwin, WINDOW *textwin ) {
+    wclear( mwin );
+    wclear( textwin );
+    printBorder( mwin );
+    printBorder( textwin );
+    wmove( textwin, 1, 2 );
+    wprintw( textwin, "Gra ASCII" );
+    wmove( textwin, 2, 2 );
+    wprintw( textwin, "© Kamil Poniatowski 2015" );
+    wrefresh( textwin );
 }

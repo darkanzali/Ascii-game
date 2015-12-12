@@ -14,19 +14,15 @@ typedef struct { // Gracz
     int hp; // Życie gracza
     int weapon; // Id broni w ręku gracza
     int armor; // Id zbroi którą nosi gracz
-    int fieldChar; //
+    int fieldch;
 } Player;
 
-typedef struct mnstr { // Potwór
-    int color; // Kolor kratki reprezentującej potwora
+typedef struct { // Potwór
     char letter; // Literka identyfikująca rodzaj potwora
     char name[ MAX_MONSTER_NAME ]; // Nazwa potwora
     int hp; // Życie potwora
-    int x;
-    int y;
     int weapon; // Id broni w ręku potwora
     int armor; // Id zbroi którą nosi potwór
-    struct mnstr *next;
 } Monster;
 
 typedef struct { // Broń
