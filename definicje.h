@@ -33,4 +33,16 @@
 #define won( x, y ) wattron( x, COLOR_PAIR( y ) )
 #define woff( x, y ) wattroff( x, COLOR_PAIR( y ) )
 
+/*************************
+#define COLOR_BLACK     0
+#define COLOR_RED       1
+#define COLOR_GREEN     2
+#define COLOR_YELLOW    3
+#define COLOR_BLUE      4
+#define COLOR_MAGENTA   5
+#define COLOR_CYAN      6
+#define COLOR_WHITE     7
+**************************/
+#define COLOR_BROWN     11
+
 #endif

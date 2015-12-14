@@ -11,7 +11,9 @@
 #include "okna.h"
 
 void print_map( char filename[], Player *player, Monster *monsters, Monster_list *fmonster_on_map, WINDOW *win, WINDOW *twin );
-void prch_xy( WINDOW *win, int type, int id, int y, int x );
+void prplayer_xy( WINDOW *win, int y, int x );
+void prfch_xy( WINDOW *win, char ch, int y, int x );
+void prmon_xy( WINDOW *win, Monster *monsters, int id, int y, int x );
 void load_monsters( Monster **monsters, WINDOW *win );
 void add_monster( Monster *monsters, Monster_list *fmonster, int id, int y, int x );
 void print_list( Monster_list *fmonster );
@@ -75,8 +77,8 @@ int playGame( int world, WINDOW *win, WINDOW *twin ) {
                         if( fieldToGo == FLOOR_CH || fieldToGo == STOP_MONSTER_CH ) {
                             player.y--;
                             chtype sav = mvwinch( win, player.y, player.x );
-                            prch_xy( win, PLAYER, ZERO, player.y, player.x );
-                            prch_xy( win, ZERO, player.fieldch, player.y + 1, player.x );
+                            prplayer_xy( win, player.y, player.x );
+                            prfch_xy( win, player.fieldch, player.y + 1, player.x );
                             player.fieldch = ( sav & A_CHARTEXT );
                         }
                     }
@@ -87,8 +89,8 @@ int playGame( int world, WINDOW *win, WINDOW *twin ) {
                         if( fieldToGo == FLOOR_CH || fieldToGo == STOP_MONSTER_CH ) {
                             player.y++;
                             chtype sav = mvwinch( win, player.y, player.x );
-                            prch_xy( win, PLAYER, ZERO, player.y, player.x );
-                            prch_xy( win, ZERO, player.fieldch, player.y - 1, player.x );
+                            prplayer_xy( win, player.y, player.x );
+                            prfch_xy( win, player.fieldch, player.y - 1, player.x );
                             player.fieldch = ( sav & A_CHARTEXT );
                         }
                     }
@@ -99,8 +101,8 @@ int playGame( int world, WINDOW *win, WINDOW *twin ) {
                         if( fieldToGo == FLOOR_CH || fieldToGo == STOP_MONSTER_CH ) {
                             player.x++;
                             chtype sav = mvwinch( win, player.y, player.x );
-                            prch_xy( win, PLAYER, ZERO, player.y, player.x );
-                            prch_xy( win, ZERO, player.fieldch, player.y, player.x - 1 );
+                            prplayer_xy( win, player.y, player.x );
+                            prfch_xy( win, player.fieldch, player.y, player.x - 1 );
                             player.fieldch = ( sav & A_CHARTEXT );
                         }
                     }
@@ -111,8 +113,8 @@ int playGame( int world, WINDOW *win, WINDOW *twin ) {
                         if( fieldToGo == FLOOR_CH || fieldToGo == STOP_MONSTER_CH ) {
                             player.x--;
                             chtype sav = mvwinch( win, player.y, player.x );
-                            prch_xy( win, PLAYER, ZERO, player.y, player.x );
-                            prch_xy( win, ZERO, player.fieldch, player.y, player.x + 1 );
+                            prplayer_xy( win, player.y, player.x );
+                            prfch_xy( win, player.fieldch, player.y, player.x + 1 );
                             player.fieldch = ( sav & A_CHARTEXT );
                         }
                     }
@@ -124,71 +126,65 @@ int playGame( int world, WINDOW *win, WINDOW *twin ) {
         gettimeofday( &end, NULL );
         seconds  = end.tv_sec  - start.tv_sec;
         useconds = end.tv_usec - start.tv_usec;
-
-        if( ( ( ( seconds ) * 1000 + useconds / 1000.0 ) + 0.5 ) >= 500  ) { // Jeżeli minęło 0.5 sekundy potwory coś robią
+        mtime = ( ( ( seconds ) * 1000 + useconds / 1000.0 ) + 0.5 );
+        if( mtime >= 1000  ) { // Jeżeli minęło 0.5 sekundy potwory się ruszają
             pointer = fmonster_on_map;
             while( pointer != NULL ) {
-                way = rand() % 4;
+                int way = rand() % 4;
                 switch( way ) {
                     case 0: // Up
                         if( true ) {
-                            char fieldToGo = ( mvwinch( win, pointer.y - 1, pointer.x ) & A_CHARTEXT );
+                            char fieldToGo = ( mvwinch( win, pointer -> y - 1, pointer -> x ) & A_CHARTEXT );
                             if( fieldToGo == FLOOR_CH ) {
-                                pointer.y--;
-                                chtype sav = mvwinch( win, pointer.y, pointer.x );
-                                prm_xy( win, monsters, pointer.id, pointer.y, pointer.x );
-                                wmove( win, pointer.y + 1, pointer.x );
-                                wprintw( win, "%c", pointer.fieldch );
-                                pointer.fieldch = ( sav & A_CHARTEXT );
+                                pointer -> y--;
+                                chtype sav = mvwinch( win, pointer -> y, pointer -> x );
+                                prmon_xy( win, monsters, pointer -> id, pointer -> y, pointer -> x );
+                                prfch_xy( win, pointer -> fieldch, pointer -> y + 1, pointer -> x );
+                                pointer -> fieldch = ( sav & A_CHARTEXT );
                             }
                         }
                         break;
                     case 1: // Down
                         if( true ) {
-                            char fieldToGo = ( mvwinch( win, pointer.y + 1, pointer.x ) & A_CHARTEXT );
+                            char fieldToGo = ( mvwinch( win, pointer -> y + 1, pointer -> x ) & A_CHARTEXT );
                             if( fieldToGo == FLOOR_CH ) {
-                                pointer.y++;
-                                chtype sav = mvwinch( win, pointer.y, pointer.x );
-                                prm_xy( win, monsters, pointer.id, pointer.y, pointer.x );
-                                wmove( win, pointer.y - 1, pointer.x );
-                                wprintw( win, "%c", pointer.fieldch );
-                                pointer.fieldch = ( sav & A_CHARTEXT );
+                                pointer -> y++;
+                                chtype sav = mvwinch( win, pointer -> y, pointer -> x );
+                                prmon_xy( win, monsters, pointer -> id, pointer -> y, pointer -> x );
+                                prfch_xy( win, pointer -> fieldch, pointer -> y - 1, pointer -> x );
+                                pointer -> fieldch = ( sav & A_CHARTEXT );
                             }
                         }
                         break;
                     case 2: // Left
                         if( true ) {
-                            char fieldToGo = ( mvwinch( win, pointer.y, pointer.x - 1 ) & A_CHARTEXT );
+                            char fieldToGo = ( mvwinch( win, pointer -> y, pointer -> x - 1 ) & A_CHARTEXT );
                             if( fieldToGo == FLOOR_CH ) {
-                                pointer.x--;
-                                chtype sav = mvwinch( win, pointer.y, pointer.x );
-                                prm_xy( win, MONSTER, pointer.id, pointer.y, pointer.x );
-                                wmove( win, pointer.y, pointer.x + 1 );
-                                wprintw( win, "%c", pointer.fieldch );
-                                pointer.fieldch = ( sav & A_CHARTEXT );
+                                pointer -> x--;
+                                chtype sav = mvwinch( win, pointer -> y, pointer -> x );
+                                prmon_xy( win, monsters, pointer -> id, pointer -> y, pointer -> x );
+                                prfch_xy( win, pointer -> fieldch, pointer -> y, pointer -> x + 1 );
+                                pointer -> fieldch = ( sav & A_CHARTEXT );
                             }
                         }
                         break;
                     case 3: // Right
                         if( true ) {
-                            char fieldToGo = ( mvwinch( win, pointer.y, pointer.x + 1 ) & A_CHARTEXT );
+                            char fieldToGo = ( mvwinch( win, pointer -> y, pointer -> x + 1 ) & A_CHARTEXT );
                             if( fieldToGo == FLOOR_CH ) {
-                                pointer.x++;
-                                chtype sav = mvwinch( win, pointer.y, pointer.x );
-                                prm_xy( win, MONSTER, pointer.id, pointer.y, pointer.x );
-                                wmove( win, pointer.y, pointer.x - 1 );
-                                wprintw( win, "%c", pointer.fieldch );
-                                pointer.fieldch = ( sav & A_CHARTEXT );
+                                pointer -> x++;
+                                chtype sav = mvwinch( win, pointer -> y, pointer -> x );
+                                prmon_xy( win, monsters, pointer -> id, pointer -> y, pointer -> x );
+                                prfch_xy( win, pointer -> fieldch, pointer -> y, pointer -> x - 1 );
+                                pointer -> fieldch = ( sav & A_CHARTEXT );
                             }
                         }
                         break;
                 }
                 pointer = pointer -> next;
             }
-
-            mtime=( ( ( seconds ) * 1000 + useconds / 1000.0 ) + 0.5 );
             gettimeofday( &start, NULL );
-        }
+        } // Potwory kończą się ruszać
 
         wmove( twin, 1, 1 );
         wprintw( twin, "%d %d %d", player.x, player.y, mtime );
@@ -237,10 +233,10 @@ void print_map( char filename[], Player *player, Monster *monsters, Monster_list
                     woff( win, FLOOR );
                     break;
                 case MONSTER:
-                    won( win, FLOOR );
+                    won( win, MONSTER );
                     wprintw( win, "%c", monsters[ m.id - 1 ].letter );
                     add_monster( monsters, fmonster_on_map, m.id - 1, i, j );
-                    woff( win, FLOOR );
+                    woff( win, MONSTER );
                     break;
                 case TELEPORT:
                     won( win, TELEPORT );
@@ -261,52 +257,23 @@ void print_map( char filename[], Player *player, Monster *monsters, Monster_list
     fclose( file );
 }
 
-void prch_xy( WINDOW *win, int type, int id, int mid, int y, int x ) {
+void prplayer_xy( WINDOW *win, int y, int x ) {
+    won( win, PLAYER );
     wmove( win, y, x );
-    if( type == ZERO ) {
-        if( id == '.' ) type = FLOOR;
-        if( id == '\"' ) type = STOP_MONSTER;
-    }
-    switch( type ) {
-        case PLAYER:
-            won( win, PLAYER );
-            wprintw( win, "%c", PLAYER_CH );
-            woff( win, PLAYER );
-            break;
-        case WALL:
-            won( win, WALL );
-            wprintw( win, "%c", WALL_CH );
-            woff( win, WALL );
-            break;
-        case STOP_MONSTER:
-            won( win, FLOOR );
-            wprintw( win, "%c", STOP_MONSTER_CH );
-            woff( win, FLOOR );
-            break;
-        case FLOOR:
-            won( win, FLOOR );
-            wprintw( win, "%c", FLOOR_CH );
-            woff( win, FLOOR );
-            break;
-        case MONSTER:
-            won( win, FLOOR );
-            wprintw( win, "%c", monsters[ mid ].letter );
-            woff( win, FLOOR );
-            break;
-        case TELEPORT:
-            won( win, TELEPORT );
-            wprintw( win, "%c", TELEPORT_CH );
-            woff( win, TELEPORT );
-            break;
-        case BOX:
-            won( win, BOX );
-            wprintw( win, "%c", BOX_CH );
-            woff( win, BOX );
-            break;
-        default:
-            wprintw( win, "E" );
-            break;
-    }
+    wprintw( win, "%c", PLAYER_CH );
+    woff( win, PLAYER );
+}
+
+void prfch_xy( WINDOW *win, char ch, int y, int x ) {
+    wmove( win, y, x );
+    wprintw( win, "%c", ch );
+}
+
+void prmon_xy( WINDOW *win, Monster *monsters, int id, int y, int x ) {
+    won( win, MONSTER );
+    wmove( win, y, x );
+    wprintw( win, "%c", monsters[ id ].letter );
+    woff( win, MONSTER );
 }
 
 void load_monsters( Monster **monsters, WINDOW *win ) {

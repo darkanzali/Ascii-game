@@ -24,7 +24,7 @@ int main() {
     cbreak(); // Wyłączenie oczekiwania na enter, teraz każdy bufor będzie wczytywał tylko jeden znak
     noecho(); // Wyłączenie wyświetlania wpisanego znaku
     keypad( stdscr, TRUE ); // Włączenie pobierania specjalnych klawiszy
-    init_colors();
+    start_color();
 
     int startx, starty; // Współrzędne lewego górnego rogu okna
     int startx2, starty2;
@@ -103,7 +103,7 @@ int main() {
                 exit( 1 );
                 break;
         }
-        
+
         if( endGame )
             break;
     }
