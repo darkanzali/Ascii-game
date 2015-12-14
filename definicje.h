@@ -30,4 +30,7 @@
 #define MAX_ITEM_NAME       10 // Maksymalna długość nazwy przedmiotów w grze
 #define MAX_MONSTER_NAME    10 // Maksymalna długość nazwy potwora
 
+#define won( x, y ) wattron( x, COLOR_PAIR( y ) )
+#define woff( x, y ) wattroff( x, COLOR_PAIR( y ) )
+
 #endif

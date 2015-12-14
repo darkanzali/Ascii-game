@@ -14,7 +14,7 @@ typedef struct { // Gracz
     int hp; // Życie gracza
     int weapon; // Id broni w ręku gracza
     int armor; // Id zbroi którą nosi gracz
-    int fieldch;
+    int fieldch; // Znak na polu na którym stoi gracz
 } Player;
 
 typedef struct { // Potwór
@@ -23,6 +23,7 @@ typedef struct { // Potwór
     int hp; // Życie potwora
     int weapon; // Id broni w ręku potwora
     int armor; // Id zbroi którą nosi potwór
+    int fieldch; // Znak na polu na którym stoi potwór
 } Monster;
 
 typedef struct { // Broń
@@ -39,6 +40,20 @@ typedef struct {
     int type;
     int id;
 } Map_field;
+
+typedef struct _mlist {
+    int id;
+    char letter;
+    char name[ MAX_MONSTER_NAME ];
+    int hp;
+    int weapon;
+    int armor;
+    int fieldch;
+    int x;
+    int y;
+    struct _mlist *next;
+    struct _mlist *prev;
+} Monster_list;
 
 #pragma pack(pop)
 

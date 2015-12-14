@@ -17,6 +17,7 @@ typedef struct { // Potwór
     int hp; // Życie potwora
     int weapon; // Id broni w ręku potwora
     int armor; // Id zbroi którą nosi potwór
+    int fieldch; // Znak pola na którym stoi potwór
 } Monster;
 
 #pragma pack(pop)
@@ -36,30 +37,35 @@ int main() {
     m[ 0 ].hp       = 10;
     m[ 0 ].weapon   = 0;
     m[ 0 ].armor    = 0;
+    m[ 0 ].fieldch  = '.';
 
     m[ 1 ].letter   = 'M';
     strcpy( m[ 1 ].name, "Menel" );
     m[ 1 ].hp       = 10;
     m[ 1 ].weapon   = 0;
     m[ 1 ].armor    = 0;
+    m[ 1 ].fieldch  = '.';
 
     m[ 2 ].letter   = 'G';
     strcpy( m[ 2 ].name, "Goblin" );
     m[ 2 ].hp       = 10;
     m[ 2 ].weapon   = 0;
     m[ 2 ].armor    = 0;
+    m[ 2 ].fieldch  = '.';
 
     m[ 3 ].letter   = 'C';
     strcpy( m[ 3 ].name, "Cyklop" );
     m[ 3 ].hp       = 10;
     m[ 3 ].weapon   = 0;
     m[ 3 ].armor    = 0;
+    m[ 3 ].fieldch  = '.';
 
     m[ 4 ].letter   = 'W';
     strcpy( m[ 4 ].name, "Wilk" );
     m[ 4 ].hp       = 10;
     m[ 4 ].weapon   = 0;
     m[ 4 ].armor    = 0;
+    m[ 4 ].fieldch  = '.';
 
     fwrite( m, sizeof( Monster ), ILE, file );
 
