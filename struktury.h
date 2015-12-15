@@ -12,6 +12,7 @@ typedef struct { // Gracz
     int x; // Pozycja x'owa gracza
     int y; // Pozycja y'owa gracza
     int hp; // Życie gracza
+    int atk; // Siła gracza
     int weapon; // Id broni w ręku gracza
     int armor; // Id zbroi którą nosi gracz
     int fieldch; // Znak na polu na którym stoi gracz
@@ -21,6 +22,7 @@ typedef struct { // Potwór
     char letter; // Literka identyfikująca rodzaj potwora
     char name[ MAX_MONSTER_NAME ]; // Nazwa potwora
     int hp; // Życie potwora
+    int atk; // Siła potwora
     int weapon; // Id broni w ręku potwora
     int armor; // Id zbroi którą nosi potwór
     int fieldch; // Znak na polu na którym stoi potwór
@@ -43,12 +45,14 @@ typedef struct {
 
 typedef struct _mlist {
     int id;
+    int uniId;
     char letter;
     char name[ MAX_MONSTER_NAME ];
     int hp;
     int weapon;
     int armor;
     int fieldch;
+    int war;
     int x;
     int y;
     struct _mlist *next;

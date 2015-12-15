@@ -15,6 +15,7 @@ typedef struct { // Potwór
     char letter; // Literka identyfikująca rodzaj potwora
     char name[ MAX_MONSTER_NAME ]; // Nazwa potwora
     int hp; // Życie potwora
+    int atk; // Siła potwora
     int weapon; // Id broni w ręku potwora
     int armor; // Id zbroi którą nosi potwór
     int fieldch; // Znak pola na którym stoi potwór
@@ -35,6 +36,7 @@ int main() {
     m[ 0 ].letter   = 'S';
     strcpy( m[ 0 ].name, "Szczur" );
     m[ 0 ].hp       = 10;
+    m[ 0 ].atk      = 2;
     m[ 0 ].weapon   = 0;
     m[ 0 ].armor    = 0;
     m[ 0 ].fieldch  = '.';
@@ -42,6 +44,7 @@ int main() {
     m[ 1 ].letter   = 'M';
     strcpy( m[ 1 ].name, "Menel" );
     m[ 1 ].hp       = 10;
+    m[ 1 ].atk      = 4;
     m[ 1 ].weapon   = 0;
     m[ 1 ].armor    = 0;
     m[ 1 ].fieldch  = '.';
@@ -49,6 +52,7 @@ int main() {
     m[ 2 ].letter   = 'G';
     strcpy( m[ 2 ].name, "Goblin" );
     m[ 2 ].hp       = 10;
+    m[ 2 ].atk      = 8;
     m[ 2 ].weapon   = 0;
     m[ 2 ].armor    = 0;
     m[ 2 ].fieldch  = '.';
@@ -56,6 +60,7 @@ int main() {
     m[ 3 ].letter   = 'C';
     strcpy( m[ 3 ].name, "Cyklop" );
     m[ 3 ].hp       = 10;
+    m[ 3 ].atk      = 15;
     m[ 3 ].weapon   = 0;
     m[ 3 ].armor    = 0;
     m[ 3 ].fieldch  = '.';
@@ -63,6 +68,7 @@ int main() {
     m[ 4 ].letter   = 'W';
     strcpy( m[ 4 ].name, "Wilk" );
     m[ 4 ].hp       = 10;
+    m[ 4 ].atk      = 20;
     m[ 4 ].weapon   = 0;
     m[ 4 ].armor    = 0;
     m[ 4 ].fieldch  = '.';
