@@ -74,6 +74,10 @@ int menu( WINDOW *win ) {
                 if( line < 4 )
                     line++;
                 break;
+            case 'q':
+                line = 4;
+                c = '\n';
+                break;
             default:
                 line=line;
                 break;

@@ -43,6 +43,5 @@
 #define COLOR_CYAN      6
 #define COLOR_WHITE     7
 **************************/
-#define COLOR_BROWN     11
 
 #endif

@@ -211,12 +211,12 @@ void print_map( char filename[], Player *player, Monster *monsters, Monster_list
             switch( m.type ) {
                 case WALL:
                     won( win, WALL );
-                    wprintw( win, "#" );
+                    wprintw( win, "%c", WALL_CH );
                     woff( win, WALL );
                     break;
                 case STOP_MONSTER:
                     won( win, FLOOR );
-                    wprintw( win, "\"" );
+                    wprintw( win, "%c", STOP_MONSTER_CH );
                     woff( win, FLOOR );
                     break;
                 case PLAYER:
@@ -229,7 +229,7 @@ void print_map( char filename[], Player *player, Monster *monsters, Monster_list
                     break;
                 case FLOOR:
                     won( win, FLOOR );
-                    wprintw( win, "." );
+                    wprintw( win, "%c", FLOOR_CH );
                     woff( win, FLOOR );
                     break;
                 case MONSTER:
@@ -240,12 +240,12 @@ void print_map( char filename[], Player *player, Monster *monsters, Monster_list
                     break;
                 case TELEPORT:
                     won( win, TELEPORT );
-                    wprintw( win, "T" );
+                    wprintw( win, "%c", TELEPORT_CH );
                     woff( win, TELEPORT );
                     break;
                 case BOX:
                     won( win, BOX );
-                    wprintw( win, "Q" );
+                    wprintw( win, "%c", BOX_CH );
                     woff( win, BOX );
                     break;
                 default:
@@ -317,7 +317,7 @@ void add_monster( Monster *monsters, Monster_list *fmonster, int id, int y, int 
 void print_list( Monster_list *fmonster ) {
     Monster_list *wsk;
     wsk = fmonster;
-    if(wsk == NULL ) printw( "NULL" );
+    if(wsk == NULL ) printw( "pusty" );
     while( wsk != NULL ) {
         printw( "%c\n", wsk->letter );
         printw( "%s\n", wsk->name );
