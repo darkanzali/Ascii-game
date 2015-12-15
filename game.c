@@ -5,12 +5,13 @@
 #include <sys/time.h>
 #include <string.h>
 #include <time.h>
+#include <math.h>
 
 #include "struktury.h"
 #include "game.h"
 #include "okna.h"
 
-#define PLAYER_ATK 1
+#define PLAYER_ATK 2
 
 void print_map( char filename[], Player *player, Monster *monsters, Monster_list *fmonster_on_map, WINDOW *win, WINDOW *twin );
 void prplayer_xy( WINDOW *win, int y, int x );
@@ -18,11 +19,13 @@ void prfch_xy( WINDOW *win, char ch, int y, int x );
 void prmon_xy( WINDOW *win, Monster *monsters, int id, int y, int x );
 void load_monsters( Monster **monsters, WINDOW *win );
 void add_monster( Monster *monsters, Monster_list *fmonster, int id, int uniId, int y, int x );
-void check_monsters_life( WINDOW *win, Monster_list *fmonster );
+void check_monsters_life( WINDOW *win, Monster_list **fmonster );
 Monster_list *checkIfMonsterNearPlayer( Player *player, Monster_list *fmonster );
 Monster_list *checkIfPlayerNearMonster( Player *player, Monster_list *fmonster );
-void print_list( Monster_list *fmonster );
+void print_list( Monster_list *fmonster, WINDOW *win );
 int playGame( int world, WINDOW *win, WINDOW *twin ) {
+    WINDOW *listawin;
+    listawin = newwin( 6, 31, 0, 0 );
 
     Player player;
     Monster *monsters;
@@ -30,8 +33,9 @@ int playGame( int world, WINDOW *win, WINDOW *twin ) {
     fmonster_on_map = malloc( sizeof( Monster_list ) );
     fmonster_on_map -> letter = 0;
     bool goMenu = false;
-    struct timeval mStartMove, mEndMove, pStartAtk, pEndAtk, mStartAtk, mEndAtk;
+    struct timeval mStartMove, pStartAtk, pStartReg, mStartAtk, EndTime;
     long mtime, seconds, useconds, breakTime;
+    int matk, marm, mweap, mlife = 0;
     Monster_list *wsk = NULL;
 
     wclear( win );
@@ -43,29 +47,36 @@ int playGame( int world, WINDOW *win, WINDOW *twin ) {
     wrefresh( win );
     refresh();
     gettimeofday( &mStartMove, NULL );
-    gettimeofday( &pStartAtk, NULL );
     gettimeofday( &mStartAtk, NULL );
+    gettimeofday( &pStartAtk, NULL );
+    gettimeofday( &pStartReg, NULL );
     srand( time( NULL ) );
 
     int c;
     while( !goMenu ) {
+        gettimeofday( &EndTime, NULL ); // Na sam początek pobieramy aktualny czas
         if( kbhit() ) {
             c = getch();
             switch( c ) {
                 case 'a': // Atakujemy
-                    gettimeofday( &pEndAtk, NULL );
-                    seconds  = pEndAtk.tv_sec  - pStartAtk.tv_sec;
-                    useconds = pEndAtk.tv_usec - pStartAtk.tv_usec;
+                    seconds  = EndTime.tv_sec  - pStartAtk.tv_sec;
+                    useconds = EndTime.tv_usec - pStartAtk.tv_usec;
                     breakTime = ( ( ( seconds ) * 1000 + useconds / 1000.0 ) + 0.5 );
                     if( breakTime > 400 ) {
                         wsk = NULL;
-                        int matk, marm, mweap, atakuja = 0;
+                        int atakuja = 0;
                         wsk = checkIfMonsterNearPlayer( &player, fmonster_on_map );
-
                         if( wsk != NULL ) {
-                            
+                            int atkStren;
+                            atkStren = rand() % player.atk;
+                            atkStren += player.atk;
+                            wsk -> hp = wsk -> hp - atkStren;
+                            if( wsk -> hp < 0 ) wsk -> hp = 0;
                             atakuja = 1;
                         }
+
+                        if( wsk == NULL || wsk -> hp == 0 )
+                            mlife = 0;
 
                         wmove( twin, 1, 15 );
                         if(atakuja)
@@ -73,6 +84,8 @@ int playGame( int world, WINDOW *win, WINDOW *twin ) {
                         else
                             wprintw( twin, "nie atakujem                    " ); // Kończymy atakować
                         gettimeofday( &pStartAtk, NULL );
+                        check_monsters_life( win, &fmonster_on_map );
+                        print_list( fmonster_on_map, listawin );
                     } else {
                         wmove( twin, 1, 15 );
                         wprintw( twin, "zwolnij kowboju, musisz odpocząć" );
@@ -157,26 +170,44 @@ int playGame( int world, WINDOW *win, WINDOW *twin ) {
                     break;
             }
         } // kbhit
+        if( checkIfMonsterNearPlayer( &player, fmonster_on_map ) != NULL )
+            player.war = 1;
+        else
+            player.war = 0;
+        // Regeneracja
+        seconds  = EndTime.tv_sec  - pStartReg.tv_sec;
+        useconds = EndTime.tv_usec - pStartReg.tv_usec;
+        breakTime = ( ( ( seconds ) * 1000 + useconds / 1000.0 ) + 0.5 );
+        if( player.war == 0 && player.hp < player.maxhp && breakTime > 1000 ) {
+            player.hp += ( rand() % 2 );
+            if( player.hp > player.maxhp ) player.hp = player.maxhp;
+            gettimeofday( &pStartReg, NULL );
+        }
+        // Koniec Regeneracji
 
         wsk = NULL;
         wsk = checkIfPlayerNearMonster( &player, fmonster_on_map );
-        wmove( twin, 1, 40 );
+        wmove( twin, 1, 60 );
         wprintw( twin, "%p", wsk );
         if( wsk != NULL ) {
             wsk -> war = 1;
-            gettimeofday( &mEndAtk, NULL );
-            seconds  = mEndAtk.tv_sec  - mStartAtk.tv_sec;
-            useconds = mEndAtk.tv_usec - mStartAtk.tv_usec;
+            seconds  = EndTime.tv_sec  - mStartAtk.tv_sec;
+            useconds = EndTime.tv_usec - mStartAtk.tv_usec;
             breakTime = ( ( ( seconds ) * 1000 + useconds / 1000.0 ) + 0.5 );
-            if( breakTime > 700 ) { // Damy fory graczowi, gra niekoniecznie ma być trudna ;)
-
-            } // Gracz kończy atakować
-            wsk = NULL;
+            if( breakTime > 700 ) { // Potwór atakuje. Damy fory graczowi, gra niekoniecznie ma być trudna ;)
+                int atkStren;
+                atkStren = rand() % wsk -> atk;
+                if( atkStren != 0 )
+                    atkStren += wsk -> atk;
+                player.hp -= atkStren;
+                if( player.hp < 0 ) player.hp = 0;
+                gettimeofday( &mStartAtk, NULL );
+            } // Potwór kończy atakować
+            mlife = wsk -> hp;
         }
 
-        gettimeofday( &mEndMove, NULL );
-        seconds  = mEndMove.tv_sec  - mStartMove.tv_sec;
-        useconds = mEndMove.tv_usec - mStartMove.tv_usec;
+        seconds  = EndTime.tv_sec  - mStartMove.tv_sec;
+        useconds = EndTime.tv_usec - mStartMove.tv_usec;
         mtime = ( ( ( seconds ) * 1000 + useconds / 1000.0 ) + 0.5 );
         if( mtime >= 1000 ) { // Jeżeli minęło 0.5 sekundy potwory się ruszają
             pointer = fmonster_on_map;
@@ -238,9 +269,14 @@ int playGame( int world, WINDOW *win, WINDOW *twin ) {
             }
             gettimeofday( &mStartMove, NULL );
         } // Potwory kończą się ruszać
-        check_monsters_life( win, fmonster_on_map );
+        wmove( twin, 1, 1 );
+        wprintw( twin, "          " );
         wmove( twin, 1, 1 );
         wprintw( twin, "%d %d %d", player.x, player.y, mtime );
+        wmove( twin, 2, 1 );
+        wprintw( twin, "          " );
+        wmove( twin, 2, 1 );
+        wprintw( twin, "%d %d", player.hp, mlife );
         wrefresh( win );
         wrefresh( twin );
     }
@@ -277,6 +313,8 @@ void print_map( char filename[], Player *player, Monster *monsters, Monster_list
                     won( win, PLAYER );
                     wprintw( win, "%c", PLAYER_CH );
                     woff( win, PLAYER );
+                    player -> hp = 20;
+                    player -> maxhp = 20;
                     player -> x = j;
                     player -> y = i;
                     player -> fieldch = '.';
@@ -370,31 +408,38 @@ void add_monster( Monster *monsters, Monster_list *fmonster, int id, int uniId, 
     new -> war      = 0;
     new -> x        = x;
     new -> y        = y;
+    new -> atk      = monsters[ id ].atk;
 }
 
-void check_monsters_life( WINDOW *win, Monster_list *fmonster ) {
-    Monster_list *pointer, *prev, *next;
+void check_monsters_life( WINDOW *win, Monster_list **fmonster ) {
+    Monster_list *pointer, *Prev, *Next;
     int x, y, fieldch;
-    pointer = fmonster;
+    pointer = *fmonster;
 
     while( pointer != NULL ) {
-        if( pointer -> hp == 0 ) {
+        if( pointer -> hp <= 0 ) {
             x = pointer -> x;
             y = pointer -> y;
             fieldch = pointer -> fieldch;
-            if( pointer -> prev != NULL ) {
-                prev = pointer -> prev;
-                if( pointer -> next != NULL )
-                    prev = pointer -> next;
-                else
-                    prev = NULL;
+            if( pointer -> prev == NULL && pointer -> next == NULL ) {
+                *fmonster = NULL;
+            } else
+            if( pointer == *fmonster ) {
+                *fmonster = pointer -> next;
+                ( *fmonster ) -> prev = NULL;
             } else {
-                next = pointer -> next;
-                next -> prev = NULL;
+                if( pointer -> next != NULL ) {
+                    Prev = pointer -> prev;
+                    Next = pointer -> next;
+                    Prev -> next = Next;
+                    Next -> prev = Prev;
+                } else {
+                    Prev = pointer -> prev;
+                    Prev -> next = NULL;
+                }
             }
-            next = pointer -> next;
             free( pointer );
-            pointer = next;
+
             wmove( win, y, x );
             wprintw( win, "%c", fieldch );
         }
@@ -444,14 +489,14 @@ Monster_list *checkIfPlayerNearMonster( Player *player, Monster_list *fmonster )
     return NULL;
 }
 
-void print_list( Monster_list *fmonster ) {
+void print_list( Monster_list *fmonster, WINDOW *win ) {
     Monster_list *wsk;
     wsk = fmonster;
-    if(wsk == NULL ) printw( "pusty" );
+    wclear( win );
+    if(wsk == NULL ) wprintw( win, "pusty" );
     while( wsk != NULL ) {
-        printw( "%p %p %p\n", wsk->prev, wsk, wsk -> next );
+        wprintw( win, "%p %p %p\n", wsk->prev, wsk, wsk -> next );
         wsk = wsk -> next;
     }
-    refresh();
-    getchar();
+    wrefresh(win);
 }
