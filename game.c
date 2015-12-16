@@ -13,55 +13,57 @@
 
 #define PLAYER_ATK 2
 
-void print_map( char filename[], Player *player, Monster *monsters, Monster_list *fmonster_on_map, WINDOW *win, WINDOW *twin );
-void prplayer_xy( WINDOW *win, int y, int x );
-void prfch_xy( WINDOW *win, char ch, int y, int x );
-void prmon_xy( WINDOW *win, Monster *monsters, int id, int y, int x );
-void load_monsters( Monster **monsters, WINDOW *win );
-void add_monster( Monster *monsters, Monster_list *fmonster, int id, int uniId, int y, int x );
-void delete_dead_monster( WINDOW *win, Monster_list **pointer, Monster_list **fmonster );
-void clear_list( Monster_list **monster );
-Monster_list *checkIfMonsterNearPlayer( Player *player, Monster_list *fmonster );
-Monster_list *checkIfPlayerNearMonster( Player *player, Monster_list *fmonster );
+void print_map( char filename[], Player *player, Monster *monsters, Monster_list **fmonster_on_map, WINDOW *win, WINDOW *twin ); // Funkcja do wypisania całej mapy
+void prplayer_xy( WINDOW *win, int y, int x ); // Funkcja wypisująca gracza na mapie
+void prfch_xy( WINDOW *win, char ch, int y, int x ); // Funkcja wypisująca znak na mapie
+void prmon_xy( WINDOW *win, Monster *monsters, int id, int y, int x ); // Funkcja wypisująca potwora na mapie
+void load_monsters( Monster **monsters, WINDOW *win ); // Funkcja wczytująca potwory z pliku do tablicy
+void add_monster( Monster *monsters, Monster_list **fmonster, int id, int uniId, int y, int x ); // Funkcja dodająca potwora na mapę
+void delete_dead_monster( WINDOW *win, Monster_list **pointer, Monster_list **fmonster ); // Funkcja usuwająca potwora z listy
+void clear_list( Monster_list **monster ); // Funkcja czyszcząca listę
+Monster_list *checkIfMonsterNearPlayer( Player *player, Monster_list *fmonster ); // Funkcja sprawdzająca czy potwór jest obok gracza
+//int timeDiff(  )
 void print_list( Monster_list *fmonster, WINDOW *win ); //DEBUG
 int playGame( int world, WINDOW *win, WINDOW *twin ) {
     WINDOW *listawin = newwin( 10, 30, 0, 0 ); //DEBUG
 
     Player player; // Zmienna przechowująca dane o graczu
     Monster *monsters; // Wskaźnik na tablicę w której będą zapisane wszystkie potwory
-    Monster_list *fmonster_on_map, *pointer; //
-    fmonster_on_map = malloc( sizeof( Monster_list ) );
-    fmonster_on_map -> letter = 0;
-    bool goMenu = false;
-    struct timeval mStartMove, pStartAtk, pStartReg, mStartAtk, EndTime;
-    long mtime, seconds, useconds, breakTime;
-    int matk, marm, mweap, mlife = 0;
-    int atkStren; // Ustalamy zmienną na siłę ataku
+    Monster_list *fmonster_on_map, *pointer; // Wskaźnik na pierwszy element listy potworów na mapie
+    fmonster_on_map = NULL; // Ustawiamy wskaźnik na nic
+    pointer = NULL; // Ustawiamy wskaźnik na nic
+    bool goMenu = false; // Zmienna przechowująca dane czy chcemy wyjść do menu i ustawiamy że nie chcemy
+    struct timeval mStartMove, mStartAtk, pStartAtk, pStartReg, EndTime;
+    /* czas od ostatniego ruchu potworów, czas od ostatniego ataku potwora, czas od ostatniego ataku gracza */
+    /* czas od ostatniej regeneracji życia gracza, obecny czas */
+    long seconds, useconds, breakTime;
+    /* wyliczone sekundy, wyliczone mikrosekundy, czas przerwy */
+    int mlife = 0; //DEBUG
+    int atkStren; // Zmienna na siłę ataku
+    int c; // Zmienna na wczytany znak z klawiatury
 
-    wclear( win );
-    printBorder( win );
-    init_colors();
-    load_monsters( &monsters, twin );
-    wmove( twin, 1, 1 );
-    print_map( MAPFILE, &player, monsters, fmonster_on_map, win, twin );
-    wrefresh( win );
-    refresh();
-    gettimeofday( &mStartMove, NULL );
-    gettimeofday( &mStartAtk, NULL );
-    gettimeofday( &pStartAtk, NULL );
-    gettimeofday( &pStartReg, NULL );
-    srand( time( NULL ) );
+    wclear( win ); // Czyścimy główne okno
+    printBorder( win ); // Wypisujemy ramkę głównego okna
+    init_colors(); // Inicjalizujemy kolory
+    load_monsters( &monsters, twin ); // Wczytujemy potwory z pliku z potworami
+    wmove( twin, 1, 1 ); // Przemieszczamy karetkę w lewy górny róg ekranu
+    print_map( MAPFILE, &player, monsters, &fmonster_on_map, win, twin ); // Wypisujemy mapę
+    wrefresh( win ); // Odświeżamy okno z mapą żeby się wyświetliła
+    gettimeofday( &mStartMove, NULL ); // Wczytujemy na początek czasy
+    gettimeofday( &mStartAtk, NULL );  // potrzebne do wyliczania
+    gettimeofday( &pStartAtk, NULL );  // w grze czy mają nastąpić
+    gettimeofday( &pStartReg, NULL );  // odpowiednie wydarzenia
+    srand( time( NULL ) ); // Inicjalizujemy generator liczb pseudolosowych
 
-    int c;
     while( !goMenu ) {
         gettimeofday( &EndTime, NULL ); // Na sam początek pobieramy aktualny czas
 
         // Sprawdzamy czy gracz jest w trakcie walki
-        player.attacking = checkIfMonsterNearPlayer( &player, fmonster_on_map );
-        if( player.attacking != NULL )
-            player.war = 1;
+        player.attacking = checkIfMonsterNearPlayer( &player, fmonster_on_map ); // Wczytujemy wskaźnik na potwora ktory stoi obok gracza
+        if( player.attacking != NULL ) // Jeżeli wskaźnik nie jest pusty to gracz jest w trakcie walki
+            player.war = 1; // Ustawiamy status gracza na "w trakcie walki"
         else
-            player.war = 0;
+            player.war = 0; // Jeżeli wskaźnik jest pusty to gracz z nikim nie walczy
         // Kończymy sprawdzanie czy gracz jest w trakcie walki
 
         // Sprawdzamy czy jakiś znak czeka na wczytanie
@@ -186,6 +188,14 @@ int playGame( int world, WINDOW *win, WINDOW *twin ) {
             }
         } // kbhit
 
+        // Jeszcze raz sprawdzamy czy gracz jest w trakcie walki
+        player.attacking = checkIfMonsterNearPlayer( &player, fmonster_on_map ); // Wczytujemy wskaźnik na potwora ktory stoi obok gracza
+        if( player.attacking != NULL ) // Jeżeli wskaźnik nie jest pusty to gracz jest w trakcie walki
+            player.war = 1; // Ustawiamy status gracza na "w trakcie walki"
+        else
+            player.war = 0; // Jeżeli wskaźnik jest pusty to gracz z nikim nie walczy
+        // Kończymy sprawdzanie czy gracz jest w trakcie walki
+
         // Jeżeli gracz nie jest w trakcie walki i ma poniżej połowy życia to regenerujemy życie
         if( ( player.war == 0 ) && ( player.hp < player.maxhp / 2 ) ) {
             seconds  = EndTime.tv_sec  - pStartReg.tv_sec;
@@ -225,8 +235,8 @@ int playGame( int world, WINDOW *win, WINDOW *twin ) {
         // Sprawdzamy czy potwory mogą się ruszać
         seconds  = EndTime.tv_sec  - mStartMove.tv_sec;
         useconds = EndTime.tv_usec - mStartMove.tv_usec;
-        mtime = ( ( ( seconds ) * 1000 + useconds / 1000.0 ) + 0.5 );
-        if( mtime >= 1000 ) { // Jeżeli minęła sekunda potwory się ruszają
+        breakTime = ( ( ( seconds ) * 1000 + useconds / 1000.0 ) + 0.5 );
+        if( breakTime >= 1000 ) { // Jeżeli minęła sekunda potwory się ruszają
             pointer = fmonster_on_map;
             while( pointer != NULL ) {
                 if( pointer -> war == 0 ) {
@@ -292,7 +302,7 @@ int playGame( int world, WINDOW *win, WINDOW *twin ) {
         wmove( twin, 1, 1 ); //DEBUG
         wprintw( twin, "          " ); //DEBUG
         wmove( twin, 1, 1 ); //DEBUG
-        wprintw( twin, "%d %d %d", player.x, player.y, mtime ); //DEBUG
+        wprintw( twin, "%d %d", player.x, player.y ); //DEBUG
         wmove( twin, 2, 1 ); //DEBUG
         wprintw( twin, "          " ); //DEBUG
         wmove( twin, 2, 1 ); //DEBUG
@@ -307,7 +317,7 @@ int playGame( int world, WINDOW *win, WINDOW *twin ) {
     return 0;
 }
 
-void print_map( char filename[], Player *player, Monster *monsters, Monster_list *fmonster_on_map, WINDOW *win, WINDOW *twin ) {
+void print_map( char filename[], Player *player, Monster *monsters, Monster_list **fmonster_on_map, WINDOW *win, WINDOW *twin ) {
     FILE *file;
     file = fopen( filename, "rb" );
     int hei, wid;
@@ -403,21 +413,23 @@ void load_monsters( Monster **monsters, WINDOW *win ) {
     fclose( file );
 }
 
-void add_monster( Monster *monsters, Monster_list *fmonster, int id, int uniId, int y, int x ) {
+void add_monster( Monster *monsters, Monster_list **fmonster, int id, int uniId, int y, int x ) {
     Monster_list *wsk, *new;
-    if( fmonster -> letter == 0 ) {
-        fmonster -> next = NULL;
-        new = fmonster;
-    } else {
-        wsk = fmonster;
 
+    if( *fmonster == NULL ) {
+        ( *fmonster ) = malloc( sizeof( Monster_list ) );
+        ( *fmonster ) -> prev = NULL;
+        ( *fmonster ) -> next = NULL;
+        new = *fmonster;
+    } else {
+        wsk = *fmonster;
         while( wsk -> next != NULL )
             wsk = wsk -> next;
 
         new = malloc( sizeof( Monster_list ) );
         new -> next = NULL;
-        wsk -> next = new;
         new -> prev = wsk;
+        wsk -> next = new;
     }
 
     strcpy( new -> name, monsters[ id ].name );
