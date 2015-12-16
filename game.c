@@ -13,7 +13,7 @@
 
 #define PLAYER_ATK 2
 
-void print_map( char filename[], Player *player, Monster *monsters, Monster_list **fmonster_on_map, WINDOW *win, WINDOW *twin ); // Funkcja do wypisania całej mapy
+void print_map( int map, Player *player, Monster *monsters, Monster_list **fmonster_on_map, WINDOW *win, WINDOW *twin ); // Funkcja do wypisania całej mapy
 void prplayer_xy( WINDOW *win, int y, int x ); // Funkcja wypisująca gracza na mapie
 void prfch_xy( WINDOW *win, char ch, int y, int x ); // Funkcja wypisująca znak na mapie
 void prmon_xy( WINDOW *win, Monster *monsters, int id, int y, int x ); // Funkcja wypisująca potwora na mapie
@@ -22,7 +22,8 @@ void add_monster( Monster *monsters, Monster_list **fmonster, int id, int uniId,
 void delete_dead_monster( WINDOW *win, Monster_list **pointer, Monster_list **fmonster ); // Funkcja usuwająca potwora z listy
 void clear_list( Monster_list **monster ); // Funkcja czyszcząca listę
 Monster_list *checkIfMonsterNearPlayer( Player *player, Monster_list *fmonster ); // Funkcja sprawdzająca czy potwór jest obok gracza
-//int timeDiff(  )
+int timeDiff( struct timeval start, struct timeval end );
+int more_random( long max );
 void print_list( Monster_list *fmonster, WINDOW *win ); //DEBUG
 int playGame( int world, WINDOW *win, WINDOW *twin ) {
     WINDOW *listawin = newwin( 10, 30, 0, 0 ); //DEBUG
@@ -36,7 +37,7 @@ int playGame( int world, WINDOW *win, WINDOW *twin ) {
     struct timeval mStartMove, mStartAtk, pStartAtk, pStartReg, EndTime;
     /* czas od ostatniego ruchu potworów, czas od ostatniego ataku potwora, czas od ostatniego ataku gracza */
     /* czas od ostatniej regeneracji życia gracza, obecny czas */
-    long seconds, useconds, breakTime;
+    unsigned long long seconds, useconds, breakTime;
     /* wyliczone sekundy, wyliczone mikrosekundy, czas przerwy */
     int mlife = 0; //DEBUG
     int atkStren; // Zmienna na siłę ataku
@@ -47,7 +48,7 @@ int playGame( int world, WINDOW *win, WINDOW *twin ) {
     init_colors(); // Inicjalizujemy kolory
     load_monsters( &monsters, twin ); // Wczytujemy potwory z pliku z potworami
     wmove( twin, 1, 1 ); // Przemieszczamy karetkę w lewy górny róg ekranu
-    print_map( MAPFILE, &player, monsters, &fmonster_on_map, win, twin ); // Wypisujemy mapę
+    print_map( world, &player, monsters, &fmonster_on_map, win, twin ); // Wypisujemy mapę
     wrefresh( win ); // Odświeżamy okno z mapą żeby się wyświetliła
     gettimeofday( &mStartMove, NULL ); // Wczytujemy na początek czasy
     gettimeofday( &mStartAtk, NULL );  // potrzebne do wyliczania
@@ -71,18 +72,13 @@ int playGame( int world, WINDOW *win, WINDOW *twin ) {
             c = getch(); // Wczytujemy ten znak
             switch( c ) { // Sprawdzamy co gracz chciał zrobić
                 case 'a': // Atakujemy
-                    // Wyznaczamy ile czasu minęło od ostatniego ataku
-                    seconds  = EndTime.tv_sec  - pStartAtk.tv_sec;
-                    useconds = EndTime.tv_usec - pStartAtk.tv_usec;
-                    breakTime = ( ( ( seconds ) * 1000 + useconds / 1000.0 ) + 0.5 );
-                    // Kończymy wyznaczanie czasu od ostatniej walki
-
+                    breakTime = timeDiff( pStartAtk, EndTime ); // Liczymy ile czasu minęło od ostatniego ataku
                     if( breakTime > 400 ) { // Jeżeli od ostatniej walki minęło 0,4 sekundy to możemy atakować
                         int atakuja = 0; //DEBUG
 
                         if( player.attacking != NULL ) {    // Upewniamy się czy obok gracza stoi potwór
                             atkStren = 0;                   // Zerujemy siłę ataku
-                            atkStren = rand() % player.atk; // Losujemy bonus do ataku z przedziału <0;siła_gracza>
+                            atkStren = more_random( player.atk ); // Losujemy bonus do ataku z przedziału <0;siła_gracza>
                             atkStren += player.atk;         // Do siły ataku dodajemy siłę gracza
                             player.attacking -> hp = player.attacking -> hp - atkStren; // Pomniejszamy życie potwora o zadany cios
                             if( player.attacking -> hp < 0 ) player.attacking -> hp = 0; // Dla uniknięcia problemów jeżeli życie potwora jest mniejsze od zera to je zerujemy
@@ -198,12 +194,11 @@ int playGame( int world, WINDOW *win, WINDOW *twin ) {
 
         // Jeżeli gracz nie jest w trakcie walki i ma poniżej połowy życia to regenerujemy życie
         if( ( player.war == 0 ) && ( player.hp < player.maxhp / 2 ) ) {
-            seconds  = EndTime.tv_sec  - pStartReg.tv_sec;
-            useconds = EndTime.tv_usec - pStartReg.tv_usec;
-            breakTime = ( ( ( seconds ) * 1000 + useconds / 1000.0 ) + 0.5 );
+            breakTime = timeDiff( pStartReg, EndTime ); // Liczymy ile czasu zostało od ostatniej regeneracji
             if( breakTime > 1000 ) { // Jeżeli od ostatniej regeneracji minęła sekunda to regenerujemy
-                player.hp += ( rand() % 2 );
-                if( player.hp > player.maxhp ) player.hp = player.maxhp;
+                if( more_random( 2 ) == 2 ) // Gracz ma ~33% szans na to że zregeneruje mu się życie w tej sekundzie
+                    player.hp++;
+                if( player.hp > player.maxhp ) player.hp = player.maxhp / 2;
                 gettimeofday( &pStartReg, NULL );
             }
         }
@@ -215,12 +210,10 @@ int playGame( int world, WINDOW *win, WINDOW *twin ) {
             wprintw( twin, "%p", player.attacking ); //DEBUG
             if( player.attacking != NULL ) { // Upewniamy się że znaleźliśmy potwora
                 player.attacking -> war = 1; // Ustawiamy status potwora na walczącego
-                seconds  = EndTime.tv_sec  - mStartAtk.tv_sec;
-                useconds = EndTime.tv_usec - mStartAtk.tv_usec;
-                breakTime = ( ( ( seconds ) * 1000 + useconds / 1000.0 ) + 0.5 );
+                breakTime = timeDiff( mStartAtk, EndTime ); // Liczymy ile czasu minęło od ostatniego ataku potwora
                 if( breakTime > 700 ) { // Potwór atakuje. Damy fory graczowi, gra niekoniecznie ma być trudna ;)
                     int atkStren;
-                    atkStren = rand() % player.attacking -> atk;
+                    atkStren = more_random( player.attacking -> atk );
                     if( atkStren != 0 )
                         atkStren += player.attacking -> atk;
                     player.hp -= atkStren;
@@ -232,15 +225,12 @@ int playGame( int world, WINDOW *win, WINDOW *twin ) {
         }
         // Kończymy walkę potwora z graczem
 
-        // Sprawdzamy czy potwory mogą się ruszać
-        seconds  = EndTime.tv_sec  - mStartMove.tv_sec;
-        useconds = EndTime.tv_usec - mStartMove.tv_usec;
-        breakTime = ( ( ( seconds ) * 1000 + useconds / 1000.0 ) + 0.5 );
+        breakTime = timeDiff( mStartMove, EndTime ); // Liczymy czas od ostatniego ruchu potwora
         if( breakTime >= 1000 ) { // Jeżeli minęła sekunda potwory się ruszają
             pointer = fmonster_on_map;
             while( pointer != NULL ) {
                 if( pointer -> war == 0 ) {
-                    int way = rand() % 4;
+                    int way = more_random( 3 );
                     switch( way ) {
                         case 0: // Up
                             if( true ) {
@@ -302,7 +292,7 @@ int playGame( int world, WINDOW *win, WINDOW *twin ) {
         wmove( twin, 1, 1 ); //DEBUG
         wprintw( twin, "          " ); //DEBUG
         wmove( twin, 1, 1 ); //DEBUG
-        wprintw( twin, "%d %d", player.x, player.y ); //DEBUG
+        wprintw( twin, "%d %d %d", player.x, player.y, timeDiff( pStartReg, EndTime ) ); //DEBUG
         wmove( twin, 2, 1 ); //DEBUG
         wprintw( twin, "          " ); //DEBUG
         wmove( twin, 2, 1 ); //DEBUG
@@ -314,12 +304,30 @@ int playGame( int world, WINDOW *win, WINDOW *twin ) {
     while( fmonster_on_map != NULL ) {
         clear_list( &fmonster_on_map );
     }
+
     return 0;
 }
 
-void print_map( char filename[], Player *player, Monster *monsters, Monster_list **fmonster_on_map, WINDOW *win, WINDOW *twin ) {
+void print_map( int map, Player *player, Monster *monsters, Monster_list **fmonster_on_map, WINDOW *win, WINDOW *twin ) {
     FILE *file;
-    file = fopen( filename, "rb" );
+    char id[ 3 ];
+    char mapfile[ MAX_MAP_FILENAME ];
+    char fileExt[ 5 ] = { '.', 'b', 'i', 'n', 0 };
+
+    id[ 1 ] = 0;
+    id[ 2 ] = 0;
+
+    if( map > 9 ) {
+        id[ 1 ] = ( map % 10 ) + '0';
+        map /= 10;
+    }
+    id[ 0 ] = map + '0';
+
+    strcpy( mapfile, "files/" );
+    strcat( mapfile, id );
+    strcat( mapfile, fileExt );
+
+    file = fopen( mapfile, "rb" );
     int hei, wid;
     int mCount = 0;
     fread( &hei, sizeof( int ), 1, file );
@@ -523,6 +531,34 @@ Monster_list *checkIfPlayerNearMonster( Player *player, Monster_list *fmonster )
         wsk = wsk -> next;
     }
     return NULL;
+}
+
+int timeDiff( struct timeval start, struct timeval end ) {
+    long difference, seconds, useconds;
+    seconds  = end.tv_sec  - start.tv_sec;
+    useconds = end.tv_usec - start.tv_usec;
+    difference = ( ( ( seconds ) * 1000 + useconds / 1000.0 ) + 0.5 );
+    return difference;
+}
+
+int more_random( long max ) {
+    //struct timeval s, e;
+    //gettimeofday( &s, NULL );
+    unsigned long
+    num_bins = ( unsigned long ) max + 1,
+    num_rand = ( unsigned long ) RAND_MAX + 1,
+    bin_size = num_rand / num_bins,
+    defect   = num_rand % num_bins;
+
+    long x;
+    do {
+        x = random();
+    } while( num_rand - defect <= ( unsigned long ) x );
+    //gettimeofday( &e, NULL );
+    //printw( "%d", x/bin_size );
+    //refresh();
+
+    return x / bin_size;
 }
 
 void print_list( Monster_list *fmonster, WINDOW *win ) {
