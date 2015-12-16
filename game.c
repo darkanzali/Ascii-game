@@ -141,6 +141,8 @@ int playGame( int world, WINDOW *win, WINDOW *twin ) {
                             prfch_xy( win, player.fieldch, player.y + 1, player.x );
                             player.fieldch = ( sav & A_CHARTEXT );
                         }
+                        if( fieldToGo == TELEPORT_CH )
+                            return world + 1;
                     }
                     break;
                 case KEY_DOWN: // Down
@@ -153,6 +155,8 @@ int playGame( int world, WINDOW *win, WINDOW *twin ) {
                             prfch_xy( win, player.fieldch, player.y - 1, player.x );
                             player.fieldch = ( sav & A_CHARTEXT );
                         }
+                        if( fieldToGo == TELEPORT_CH )
+                            return world + 1;
                     }
                     break;
                 case KEY_RIGHT: // Right
@@ -165,6 +169,8 @@ int playGame( int world, WINDOW *win, WINDOW *twin ) {
                             prfch_xy( win, player.fieldch, player.y, player.x - 1 );
                             player.fieldch = ( sav & A_CHARTEXT );
                         }
+                        if( fieldToGo == TELEPORT_CH )
+                            return world + 1;
                     }
                     break;
                 case KEY_LEFT: // Left
@@ -177,6 +183,8 @@ int playGame( int world, WINDOW *win, WINDOW *twin ) {
                             prfch_xy( win, player.fieldch, player.y, player.x + 1 );
                             player.fieldch = ( sav & A_CHARTEXT );
                         }
+                        if( fieldToGo == TELEPORT_CH )
+                            return world + 1;
                     }
                     break;
                 default:
