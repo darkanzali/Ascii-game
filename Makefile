@@ -19,7 +19,7 @@ colors.o: colors.c
 	gcc -c colors.c -o colors.o
 
 gra: gra.o okna.o menu.o game.o funkcje.o colors.o
-	gcc gra.o okna.o menu.o game.o funkcje.o colors.o -o gra -Wall -Wparentheses -lncursesw -lm
+	gcc -O2 gra.o okna.o menu.o game.o funkcje.o colors.o -o gra -Wall -Wparentheses -lncursesw -lm
 	-rm *.o
 
 clean:

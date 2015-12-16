@@ -17,7 +17,8 @@ typedef struct { // Gracz
     int weapon; // Id broni w ręku gracza
     int armor; // Id zbroi którą nosi gracz
     int fieldch; // Znak na polu na którym stoi gracz
-    int war;
+    int war; // Czy gracz walczy z potworem
+    struct _mlist *attacking; // Wskaźnik na potwora z którym walczymy
 } Player;
 
 typedef struct { // Potwór
