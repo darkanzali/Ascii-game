@@ -26,7 +26,7 @@ int timeDiff( struct timeval start, struct timeval end );
 int more_random( long max );
 void print_list( Monster_list *fmonster, WINDOW *win ); //DEBUG
 int playGame( int world, WINDOW *win, WINDOW *twin ) {
-    WINDOW *listawin = newwin( 10, 30, 0, 0 ); //DEBUG
+    //WINDOW *listawin = newwin( 10, 30, 0, 0 ); //DEBUG
 
     Player player; // Zmienna przechowująca dane o graczu
     Monster *monsters; // Wskaźnik na tablicę w której będą zapisane wszystkie potwory
@@ -88,7 +88,7 @@ int playGame( int world, WINDOW *win, WINDOW *twin ) {
                                 delete_dead_monster( win, &player.attacking, &fmonster_on_map );
                                 player.war = 0;
                                 player.attacking = NULL;
-                                print_list( fmonster_on_map, listawin );
+                                //print_list( fmonster_on_map, listawin );
                             }
                         }
 
