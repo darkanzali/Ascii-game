@@ -1,7 +1,7 @@
 default: gra
 
-gra.o: gra.c
-	gcc -c gra.c -o gra.o
+gra.o: main.c
+	gcc -c main.c -o gra.o
 
 okna.o: okna.c
 	gcc -c okna.c -o okna.o
@@ -20,11 +20,9 @@ colors.o: colors.c
 
 gra: gra.o okna.o menu.o game.o funkcje.o colors.o
 	gcc -O2 gra.o okna.o menu.o game.o funkcje.o colors.o -o gra -Wall -Wparentheses -lncursesw -lm
-	-rm *.o
 
 grad: gra.o okna.o menu.o game.o funkcje.o colors.o
 	gcc -O2 gra.o okna.o menu.o game.o funkcje.o colors.o -o gra -Wall -Wparentheses -lncursesw -lm -g
-	-rm *.o
 
 clean:
 	-rm -f *.o

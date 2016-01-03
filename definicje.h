@@ -14,6 +14,8 @@
 #define MONSTER         5
 #define BOX             6
 #define TELEPORT        7
+#define GREEN           10
+#define RED             11
 
 #define FLOOR_CH        '.'
 #define WALL_CH         '#'

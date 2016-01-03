@@ -52,6 +52,7 @@ typedef struct _mlist {
     char letter;
     char name[ MAX_MONSTER_NAME ];
     int hp;
+    int maxhp;
     int atk;
     int weapon;
     int armor;
@@ -62,6 +63,12 @@ typedef struct _mlist {
     struct _mlist *next;
     struct _mlist *prev;
 } Monster_list;
+
+typedef struct {
+    WINDOW *mwin;
+    WINDOW *twin;
+    WINDOW *rwin;
+} Windows;
 
 #pragma pack(pop)
 
