@@ -30,7 +30,7 @@ int main() {
     int startx2, starty2;
     int startx3, starty3;
     int wx, wy; // Szerokość i wysokość terminala
-    int hei = 22, wid = 82; // Wysokość i szerokość okienka główpisanego
+    int hei = 22, wid = 82; // Wysokość i szerokość okienka głównego
     int hei2 = 4, wid2 = wid; // Wysokość i szerokość okienka tekstowego
     int hei3 = 8, wid3 = 12;
     int world; // Aktualny świat

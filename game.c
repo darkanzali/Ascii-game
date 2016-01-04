@@ -25,7 +25,7 @@ void clear_list( Monster_list **monster ); // Funkcja czyszcząca listę
 Monster_list *checkIfMonsterNearPlayer( Player *player, Monster_list *fmonster ); // Funkcja sprawdzająca czy potwór jest obok gracza
 int time_diff( struct timeval start, struct timeval end );
 int more_random( long max );
-void save_game( WINDOW *win, int world );
+void save_game( WINDOW *win, int world, Player player, Monster_list *fmonster );
 void print_list( Monster_list *fmonster, WINDOW *win ); //DEBUG
 int playGame( int world, Windows w ) {
     WINDOW *win = w.mwin;
@@ -80,6 +80,9 @@ int playGame( int world, Windows w ) {
         if( kbhit() ) {
             c = getch(); // Wczytujemy ten znak
             switch( c ) { // Sprawdzamy co gracz chciał zrobić
+                case 's':
+                    save_game( win, world, player, fmonster_on_map );
+                    break;
                 case 'a': // Atakujemy
                     breakTime = time_diff( pStartAtk, EndTime ); // Liczymy ile czasu minęło od ostatniego ataku
                     if( breakTime > 400 ) { // Jeżeli od ostatniej walki minęło 0,4 sekundy to możemy atakować
@@ -326,7 +329,6 @@ int playGame( int world, Windows w ) {
             }
             gettimeofday( &mStartMove, NULL );
         } // Potwory kończą się ruszać
-
         prlife( rwin, player, player.attacking );
         wrefresh( win );
         wrefresh( twin );
@@ -392,6 +394,8 @@ void print_map( int map, Player *player, Monster *monsters, Monster_list **fmons
                     player -> y = i;
                     player -> fieldch = '.';
                     player -> atk = PLAYER_ATK;
+                    player -> weapon = ZERO;
+                    player -> armor = ZERO;
                     break;
                 case FLOOR:
                     won( win, FLOOR );
@@ -700,8 +704,6 @@ int time_diff( struct timeval start, struct timeval end ) {
 }
 
 int more_random( long max ) {
-    //struct timeval s, e;
-    //gettimeofday( &s, NULL );
     unsigned long
     num_bins = ( unsigned long ) max + 1,
     num_rand = ( unsigned long ) RAND_MAX + 1,
@@ -712,15 +714,76 @@ int more_random( long max ) {
     do {
         x = random();
     } while( num_rand - defect <= ( unsigned long ) x );
-    //gettimeofday( &e, NULL );
-    //printw( "%d", x/bin_size );
-    //refresh();
 
     return x / bin_size;
 }
 
-void save_game( WINDOW *win, int world ) {
-    
+void save_game( WINDOW *win, int world, Player player, Monster_list *fmonster ) {
+    if( access( "save/player.bin", F_OK ) != -1 ) { // Usuwanie pliku zapisu stanu gracza jeśli istnieje
+        if( remove( "save/player.bin" ) != 0 ) {
+            printf( "Error saving game (P). Exiting." );
+            exit( 1 );
+        }
+    }
+    char id[ 3 ] = { 0, 0, 0 };
+    char fileExt[ 5 ] = { '.', 'b', 'i', 'n', 0 };
+
+    id[ 1 ] = 0;
+    id[ 2 ] = 0;
+
+    if( world > 9 ) {
+        id[ 1 ] = ( world % 10 ) + '0';
+        world /= 10;
+    }
+    id[ 0 ] = world + '0';
+
+    char map[ MAX_MAP_FILENAME ];
+    char mons[ MAX_MAP_FILENAME + 1 ];
+
+    strcpy( map, "save/" );
+    strcat( map, id );
+    strcat( map, fileExt );
+
+    strcpy( mons, "save/" );
+    strcat( mons, id );
+    strcat( mons, "m" );
+    strcat( mons, fileExt );
+
+    if( access( map, F_OK ) != -1 ) { // Usuwanie pliku zapisu mapy jeśli istnieje
+        if( remove( map ) != 0 ) {
+            printf( "Error saving game (M). Exiting." );
+            exit( 1 );
+        }
+    }
+
+    if( access( mons, F_OK ) != -1 ) { // Usuwanie pliku zapisu listy potworów jeśli istnieje
+        if( remove( mons ) != 0 ) {
+            printf( "Error saving game (Mm). Exiting." );
+            exit( 1 );
+        }
+    }
+
+    FILE *plaf = fopen( "save/player.bin", "wb" );
+    FILE *mapf = fopen( map, "wb" );
+    FILE *monf = fopen( mons, "wb" );
+
+    player.attacking = NULL;
+
+    fwrite( &player, sizeof( Player ), 1, plaf );
+
+    int i, j;
+    Map_field mfield;
+
+    for( i = 1; i < 82; i++ ) {
+        for( j = 1; j < 22; j++ ) {
+            char field = ( mvwinch( win, i, j ) & A_CHARTEXT );
+            //TODO dopisać zapisywanie mapy
+        }
+    }
+
+    fclose( plaf );
+    fclose( mapf );
+    fclose( monf );
 }
 
 void print_list( Monster_list *fmonster, WINDOW *win ) {
