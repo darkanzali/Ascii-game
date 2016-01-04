@@ -25,7 +25,7 @@ void clear_list( Monster_list **monster ); // Funkcja czyszcząca listę
 Monster_list *checkIfMonsterNearPlayer( Player *player, Monster_list *fmonster ); // Funkcja sprawdzająca czy potwór jest obok gracza
 int time_diff( struct timeval start, struct timeval end );
 int more_random( long max );
-void save_game( WINDOW *win, int world, Player player, Monster_list *fmonster );
+void save_game( WINDOW *win, int world, Player player, Monster_list *fmonster, Monster *monsters );
 void print_list( Monster_list *fmonster, WINDOW *win ); //DEBUG
 int playGame( int world, Windows w ) {
     WINDOW *win = w.mwin;
@@ -81,7 +81,7 @@ int playGame( int world, Windows w ) {
             c = getch(); // Wczytujemy ten znak
             switch( c ) { // Sprawdzamy co gracz chciał zrobić
                 case 's':
-                    save_game( win, world, player, fmonster_on_map );
+                    save_game( win, world, player, fmonster_on_map, monsters );
                     break;
                 case 'a': // Atakujemy
                     breakTime = time_diff( pStartAtk, EndTime ); // Liczymy ile czasu minęło od ostatniego ataku
@@ -269,7 +269,7 @@ int playGame( int world, Windows w ) {
         // Kończymy walkę potwora z graczem
 
         breakTime = time_diff( mStartMove, EndTime ); // Liczymy czas od ostatniego ruchu potwora
-        if( breakTime >= 1000 ) { // Jeżeli minęła sekunda potwory się ruszają
+        if( false ) { // breakTime >= 1000 ) { // Jeżeli minęła sekunda potwory się ruszają
             pointer = fmonster_on_map;
             while( pointer != NULL ) {
                 if( pointer -> war == 0 ) {
@@ -420,7 +420,7 @@ void print_map( int map, Player *player, Monster *monsters, Monster_list **fmons
                     woff( win, BOX );
                     break;
                 default:
-                    wprintw( win, "E" );
+                    wprintw( win, " " );
                     break;
             }
         }
@@ -718,7 +718,7 @@ int more_random( long max ) {
     return x / bin_size;
 }
 
-void save_game( WINDOW *win, int world, Player player, Monster_list *fmonster ) {
+void save_game( WINDOW *win, int world, Player player, Monster_list *fmonster, Monster *monsters ) {
     if( access( "save/player.bin", F_OK ) != -1 ) { // Usuwanie pliku zapisu stanu gracza jeśli istnieje
         if( remove( "save/player.bin" ) != 0 ) {
             printf( "Error saving game (P). Exiting." );
@@ -777,7 +777,47 @@ void save_game( WINDOW *win, int world, Player player, Monster_list *fmonster ) 
     for( i = 1; i < 82; i++ ) {
         for( j = 1; j < 22; j++ ) {
             char field = ( mvwinch( win, i, j ) & A_CHARTEXT );
-            //TODO dopisać zapisywanie mapy
+            mfield.type = ZERO;
+            mfield.id   = ZERO;
+            switch( field ) {
+                case '#':
+                    mfield.type = WALL;
+                    mfield.id   = ZERO;
+                    break;
+                case '.':
+                    mfield.type = FLOOR;
+                    mfield.id   = ZERO;
+                    break;
+                case '\"':
+                    mfield.type = STOP_MONSTER;
+                    mfield.id   = ZERO;
+                    break;
+                case '@':
+                    mfield.type = PLAYER;
+                    mfield.id   = ZERO;
+                    break;
+                case 'T':
+                    mfield.type = TELEPORT;
+                    mfield.id   = ZERO;
+                    break;
+                case '&':
+                    mfield.type = BOX;
+                    mfield.id   = ZERO;
+                    break;
+                default: // Jak nierozpoznane to szukamy czy to nie potwór
+                    if( true ) {
+                        int im;
+                        for( im = 0; monsters[ im ].hp != -1; im++ ) {
+                            if( monsters[ im ].letter == field ) {
+                                mfield.type = MONSTER;
+                                mfield.id   = im + 1;
+                                break;
+                            }
+                        }
+                    }
+                break;
+            }
+            fwrite( &mfield, sizeof( Map_field ), 1, mapf );
         }
     }
 

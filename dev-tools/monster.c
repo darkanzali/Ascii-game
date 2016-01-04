@@ -2,10 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#define ILE         5
-#define NO_ATK      1
-#define ATK_IF_ATK  2
-#define DEFAULT_ATK 2
+#define ILE         6
 #define MAX_MONSTER_NAME 10
 
 #pragma pack(push)
@@ -72,6 +69,14 @@ int main() {
     m[ 4 ].weapon   = 0;
     m[ 4 ].armor    = 0;
     m[ 4 ].fieldch  = '.';
+
+    m[ 5 ].letter   = 'A';
+    strcpy( m[ 4 ].name, "END" );
+    m[ 5 ].hp       = -1;
+    m[ 5 ].atk      = -1;
+    m[ 5 ].weapon   = -1;
+    m[ 5 ].armor    = -1;
+    m[ 5 ].fieldch  = 'A';
 
     fwrite( m, sizeof( Monster ), ILE, file );
 
