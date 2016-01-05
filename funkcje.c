@@ -6,6 +6,8 @@
 #include <ncursesw/ncurses.h>
 #include <string.h>
 
+#include "definicje.h"
+
 int kbhit(void)
 {
 	struct timeval timeout;
@@ -26,4 +28,23 @@ int kbhit(void)
 	cbreak();
 
 	return status;
+}
+
+char *world_to_char( char dir[], int number, char ext[] ) {
+	char id[ 3 ] = { 0, 0, 0 };
+
+    if( number > 9 ) {
+        id[ 1 ] = ( number % 10 ) + '0';
+        number /= 10;
+    }
+    id[ 0 ] = number + '0';
+
+    char *map = NULL;
+	map = malloc( MAX_MAP_FILENAME * sizeof( char ) );
+
+    strcpy( map, dir );
+    strcat( map, id );
+    strcat( map, ext );
+
+	return map;
 }

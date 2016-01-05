@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <ncursesw/ncurses.h>
-#include <signal.h>
 #include <locale.h>
 
 #include "definicje.h"

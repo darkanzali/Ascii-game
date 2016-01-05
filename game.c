@@ -13,20 +13,6 @@
 
 #define PLAYER_ATK 2
 
-void print_map( int map, Player *player, Monster *monsters, Monster_list **fmonster_on_map, WINDOW *win, WINDOW *twin ); // Funkcja do wypisania całej mapy
-void prplayer_xy( WINDOW *win, int y, int x ); // Funkcja wypisująca gracza na mapie
-void prfch_xy( WINDOW *win, char ch, int y, int x ); // Funkcja wypisująca znak na mapie
-void prmon_xy( WINDOW *win, Monster *monsters, int id, int y, int x ); // Funkcja wypisująca potwora na mapie
-void prlife( WINDOW *win, Player player, Monster_list *monster );
-void load_monsters( Monster **monsters, WINDOW *win ); // Funkcja wczytująca potwory z pliku do tablicy
-void add_monster( Monster *monsters, Monster_list **fmonster, int id, int uniId, int y, int x ); // Funkcja dodająca potwora na mapę
-void delete_dead_monster( WINDOW *win, Monster_list **pointer, Monster_list **fmonster ); // Funkcja usuwająca potwora z listy
-void clear_list( Monster_list **monster ); // Funkcja czyszcząca listę
-Monster_list *checkIfMonsterNearPlayer( Player *player, Monster_list *fmonster ); // Funkcja sprawdzająca czy potwór jest obok gracza
-int time_diff( struct timeval start, struct timeval end );
-int more_random( long max );
-void save_game( WINDOW *win, int world, Player player, Monster_list *fmonster, Monster *monsters );
-void print_list( Monster_list *fmonster, WINDOW *win ); //DEBUG
 int playGame( int world, Windows w ) {
     WINDOW *win = w.mwin;
     WINDOW *twin = w.twin;
@@ -66,6 +52,7 @@ int playGame( int world, Windows w ) {
     prlife( rwin, player, NULL );
 
     while( !goMenu ) {
+        beginning:
         gettimeofday( &EndTime, NULL ); // Na sam początek pobieramy aktualny czas
 
         // Sprawdzamy czy gracz jest w trakcie walki
@@ -82,6 +69,9 @@ int playGame( int world, Windows w ) {
             switch( c ) { // Sprawdzamy co gracz chciał zrobić
                 case 's':
                     save_game( win, world, player, fmonster_on_map, monsters );
+                    break;
+                case 'l':
+                    load_saved_game( &player, monsters, &fmonster_on_map, win );
                     break;
                 case 'a': // Atakujemy
                     breakTime = time_diff( pStartAtk, EndTime ); // Liczymy ile czasu minęło od ostatniego ataku
@@ -247,15 +237,22 @@ int playGame( int world, Windows w ) {
                         wclear( twin );
                         printBorder( twin );
                         wmove( twin, 1, 1 );
-                        wprintw( twin, "Zginąłeś :( zaczynamy poziom od nowa? (t/n)" );
+                        wprintw( twin, "Zginąłeś :( od (n)owa,(w)czytaj grę, (m)enu? (n/w/m)" );
                         wrefresh( twin );
                         int out;
                         do {
                             out = getch();
-                        } while( out != 't' && out != 'n' );
-                        if( out == 't' ) {
+                        } while( out != 'n' && out != 'w' && out != 'm' );
+                        wclear( twin );
+                        printBorder( twin );
+                        wrefresh( twin );
+                        if( out == 'n' ) {
                             goMenu = true;
                             nworld = world;
+                        } else if( out == 'w' ) {
+                            load_saved_game( &player, monsters, &fmonster_on_map, win );
+                            goMenu = false;
+                            goto beginning;
                         } else {
                             goMenu = true;
                             nworld = -1;
@@ -269,7 +266,7 @@ int playGame( int world, Windows w ) {
         // Kończymy walkę potwora z graczem
 
         breakTime = time_diff( mStartMove, EndTime ); // Liczymy czas od ostatniego ruchu potwora
-        if( false ) { // breakTime >= 1000 ) { // Jeżeli minęła sekunda potwory się ruszają
+        if( breakTime >= 1000 ) { // Jeżeli minęła sekunda potwory się ruszają
             pointer = fmonster_on_map;
             while( pointer != NULL ) {
                 if( pointer -> war == 0 ) {
@@ -344,22 +341,9 @@ int playGame( int world, Windows w ) {
 
 void print_map( int map, Player *player, Monster *monsters, Monster_list **fmonster_on_map, WINDOW *win, WINDOW *twin ) {
     FILE *file;
-    char id[ 3 ] = { 0, 0, 0 };
-    char mapfile[ MAX_MAP_FILENAME ];
-    char fileExt[ 5 ] = { '.', 'b', 'i', 'n', 0 };
+    char *mapfile;
 
-    id[ 1 ] = 0;
-    id[ 2 ] = 0;
-
-    if( map > 9 ) {
-        id[ 1 ] = ( map % 10 ) + '0';
-        map /= 10;
-    }
-    id[ 0 ] = map + '0';
-
-    strcpy( mapfile, "files/" );
-    strcat( mapfile, id );
-    strcat( mapfile, fileExt );
+    mapfile = world_to_char( "files/", map, ".bin" );
 
     file = fopen( mapfile, "rb" );
     int hei, wid;
@@ -388,6 +372,7 @@ void print_map( int map, Player *player, Monster *monsters, Monster_list **fmons
                     won( win, PLAYER );
                     wprintw( win, "%c", PLAYER_CH );
                     woff( win, PLAYER );
+                    player -> place = map;
                     player -> hp = 20;
                     player -> maxhp = 20;
                     player -> x = j;
@@ -616,6 +601,40 @@ void add_monster( Monster *monsters, Monster_list **fmonster, int id, int uniId,
     new -> atk      = monsters[ id ].atk;
 }
 
+void add_monster_saved( Monster_list mToAdd, Monster_list **fmonster, int uniId ) { // Funkcja dodająca potwora wczytanego z zapisu
+    Monster_list *wsk, *new;
+
+    if( *fmonster == NULL ) {
+        ( *fmonster ) = malloc( sizeof( Monster_list ) );
+        ( *fmonster ) -> prev = NULL;
+        ( *fmonster ) -> next = NULL;
+        new = *fmonster;
+    } else {
+        wsk = *fmonster;
+        while( wsk -> next != NULL )
+            wsk = wsk -> next;
+
+        new = malloc( sizeof( Monster_list ) );
+        new -> next = NULL;
+        new -> prev = wsk;
+        wsk -> next = new;
+    }
+
+    strcpy( new -> name, mToAdd.name );
+    new -> id       = mToAdd.id;
+    new -> uniId    = uniId;
+    new -> letter   = mToAdd.letter;
+    new -> hp       = mToAdd.hp;
+    new -> maxhp    = mToAdd.maxhp;
+    new -> weapon   = mToAdd.weapon;
+    new -> armor    = mToAdd.armor;
+    new -> fieldch  = mToAdd.fieldch;
+    new -> war      = 0;
+    new -> x        = mToAdd.x;
+    new -> y        = mToAdd.y;
+    new -> atk      = mToAdd.atk;
+}
+
 void delete_dead_monster( WINDOW *win, Monster_list **pointer, Monster_list **fmonster ) {
     int x, y, fieldch;
     x = ( *pointer ) -> x;
@@ -725,29 +744,11 @@ void save_game( WINDOW *win, int world, Player player, Monster_list *fmonster, M
             exit( 1 );
         }
     }
-    char id[ 3 ] = { 0, 0, 0 };
-    char fileExt[ 5 ] = { '.', 'b', 'i', 'n', 0 };
 
-    id[ 1 ] = 0;
-    id[ 2 ] = 0;
+    char *map, *mons;
 
-    if( world > 9 ) {
-        id[ 1 ] = ( world % 10 ) + '0';
-        world /= 10;
-    }
-    id[ 0 ] = world + '0';
-
-    char map[ MAX_MAP_FILENAME ];
-    char mons[ MAX_MAP_FILENAME + 1 ];
-
-    strcpy( map, "save/" );
-    strcat( map, id );
-    strcat( map, fileExt );
-
-    strcpy( mons, "save/" );
-    strcat( mons, id );
-    strcat( mons, "m" );
-    strcat( mons, fileExt );
+    map = world_to_char( "save/", world, ".bin" );
+    mons = world_to_char( "save/", world, "m.bin" );
 
     if( access( map, F_OK ) != -1 ) { // Usuwanie pliku zapisu mapy jeśli istnieje
         if( remove( map ) != 0 ) {
@@ -772,11 +773,33 @@ void save_game( WINDOW *win, int world, Player player, Monster_list *fmonster, M
     fwrite( &player, sizeof( Player ), 1, plaf );
 
     int i, j;
+    char field;
     Map_field mfield;
 
-    for( i = 1; i < 82; i++ ) {
-        for( j = 1; j < 22; j++ ) {
-            char field = ( mvwinch( win, i, j ) & A_CHARTEXT );
+    i = 1;
+    j = 1;
+
+    do {
+        field = ( mvwinch( win, i, j + 1 ) & A_CHARTEXT );
+        j++;
+    } while( field != ' ' );
+
+    j--;
+
+    do {
+        field = ( mvwinch( win, i + 1, j ) & A_CHARTEXT );
+        i++;
+    } while( field != ' ' );
+
+    i--;
+
+    int x = j, y = i;
+
+    fwrite( &i, sizeof( int ), 1, mapf );
+    fwrite( &j, sizeof( int ), 1, mapf );
+    for( i = 1; i <= y; i++ ) {
+        for( j = 1; j <= x; j++ ) {
+            field = ( mvwinch( win, i, j ) & A_CHARTEXT );
             mfield.type = ZERO;
             mfield.id   = ZERO;
             switch( field ) {
@@ -821,9 +844,116 @@ void save_game( WINDOW *win, int world, Player player, Monster_list *fmonster, M
         }
     }
 
+    Monster_list *wsk;
+
+    wsk = fmonster;
+
+    while( wsk != NULL ) {
+        fwrite( wsk, sizeof( Monster_list ), 1, monf );
+        wsk = wsk -> next;
+    }
+
     fclose( plaf );
     fclose( mapf );
     fclose( monf );
+    free( map );
+    free( mons );
+}
+
+void load_saved_game( Player *player, Monster *monsters, Monster_list **fmonster, WINDOW *win ) {
+    int world;
+    char *map, *mons;
+    if( access( "save/player.bin", F_OK ) == -1 )
+        return;
+
+    FILE *plaf = fopen( "save/player.bin", "rb" );
+
+    fread( player, sizeof( Player ), 1, plaf );
+    fclose( plaf );
+    world = player -> place;
+
+    map = world_to_char( "save/", world, ".bin" );
+    mons = world_to_char( "save/", world, "m.bin" );
+
+    if( access( map, F_OK ) == -1 ){
+        free( map );
+        free( mons );
+        return;
+    }
+    if( access( mons, F_OK ) == -1 ) {
+        free( map );
+        free( mons );
+        return;
+    }
+
+    while( *fmonster != NULL ) {
+        clear_list( fmonster );
+    }
+
+    FILE *mapf = fopen( map, "rb" );
+    FILE *monf = fopen( mons, "rb" );
+
+    int x, y;
+    fread( &y, sizeof( int ), 1, mapf );
+    fread( &x, sizeof( int ), 1, mapf );
+
+    int i, j;
+    Map_field m;
+    int mCount = 0;
+    Monster_list tMonster;
+
+    for( i = 1; i <= y; i++ ) {
+        wmove( win, i, 1 );
+        for( j = 1; j <= x; j++ ) {
+            fread( &m, sizeof( Map_field ), 1, mapf );
+            switch( m.type ) {
+                case WALL:
+                    won( win, WALL );
+                    wprintw( win, "%c", WALL_CH );
+                    woff( win, WALL );
+                    break;
+                case STOP_MONSTER:
+                    won( win, FLOOR );
+                    wprintw( win, "%c", STOP_MONSTER_CH );
+                    woff( win, FLOOR );
+                    break;
+                case PLAYER:
+                    won( win, PLAYER );
+                    wprintw( win, "%c", PLAYER_CH );
+                    woff( win, PLAYER );
+                    break;
+                case FLOOR:
+                    won( win, FLOOR );
+                    wprintw( win, "%c", FLOOR_CH );
+                    woff( win, FLOOR );
+                    break;
+                case MONSTER:
+                    won( win, MONSTER );
+                    wprintw( win, "%c", monsters[ m.id - 1 ].letter );
+                    mCount++;
+                    fread( &tMonster, sizeof( Monster_list ), 1, monf );
+                    add_monster_saved( tMonster, fmonster, mCount );
+                    woff( win, MONSTER );
+                    break;
+                case TELEPORT:
+                    won( win, TELEPORT );
+                    wprintw( win, "%c", TELEPORT_CH );
+                    woff( win, TELEPORT );
+                    break;
+                case BOX:
+                    won( win, BOX );
+                    wprintw( win, "%c", BOX_CH );
+                    woff( win, BOX );
+                    break;
+                default:
+                    wprintw( win, " " );
+                    break;
+            }
+        }
+    }
+
+    free( map );
+    free( mons );
 }
 
 void print_list( Monster_list *fmonster, WINDOW *win ) {
