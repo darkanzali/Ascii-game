@@ -41,7 +41,16 @@ int playGame( int world, Windows w ) {
     init_colors(); // Inicjalizujemy kolory
     load_monsters( &monsters, twin ); // Wczytujemy potwory z pliku z potworami
     wmove( twin, 1, 1 ); // Przemieszczamy karetkę w lewy górny róg ekranu
-    print_map( world, &player, monsters, &fmonster_on_map, win, twin ); // Wypisujemy mapę
+    if( world != -1 ) {
+        print_map( world, &player, monsters, &fmonster_on_map, win, twin ); // Wypisujemy mapę
+    } else {
+        int load = load_saved_game( &player, monsters, &fmonster_on_map, win );
+        if( load == -1 ) {
+            goMenu = true;
+            nworld = -1;
+        } else
+            world = player.place;
+    }
     wrefresh( win ); // Odświeżamy okno z mapą żeby się wyświetliła
     gettimeofday( &mStartMove, NULL ); // Wczytujemy na początek czasy
     gettimeofday( &mStartAtk, NULL );  // potrzebne do wyliczania
@@ -49,7 +58,7 @@ int playGame( int world, Windows w ) {
     gettimeofday( &pStartReg, NULL );  // odpowiednie wydarzenia
     srand( time( NULL ) ); // Inicjalizujemy generator liczb pseudolosowych
 
-    prlife( rwin, player, NULL );
+    if( !goMenu ) prlife( rwin, player, NULL );
 
     while( !goMenu ) {
         beginning:
@@ -860,11 +869,11 @@ void save_game( WINDOW *win, int world, Player player, Monster_list *fmonster, M
     free( mons );
 }
 
-void load_saved_game( Player *player, Monster *monsters, Monster_list **fmonster, WINDOW *win ) {
+int load_saved_game( Player *player, Monster *monsters, Monster_list **fmonster, WINDOW *win ) {
     int world;
     char *map, *mons;
     if( access( "save/player.bin", F_OK ) == -1 )
-        return;
+        return -1;
 
     FILE *plaf = fopen( "save/player.bin", "rb" );
 
@@ -878,12 +887,12 @@ void load_saved_game( Player *player, Monster *monsters, Monster_list **fmonster
     if( access( map, F_OK ) == -1 ){
         free( map );
         free( mons );
-        return;
+        return -1;
     }
     if( access( mons, F_OK ) == -1 ) {
         free( map );
         free( mons );
-        return;
+        return -1;
     }
 
     while( *fmonster != NULL ) {

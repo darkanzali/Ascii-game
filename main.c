@@ -87,11 +87,16 @@ int main() {
         switch( menu( mwin ) ) {    // 1 Nowa gra // 2 Wczytaj grę
             case 1:                 // 3 Pomoc // 4 Wyjście
                 world = 1;
-                goto gramy;
+                wclear( twin );
+                printBorder( twin );
+                wrefresh( twin );
+                do {
+                    world = playGame( world, windows );
+                } while( world != -1 );
+                endGame = false;
                 break;
             case 2:
-                world = 1; // TODO: wczytywanie wybranego świata
-                gramy:
+                world = -1;
                 wclear( twin );
                 printBorder( twin );
                 wrefresh( twin );
