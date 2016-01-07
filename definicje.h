@@ -1,11 +1,17 @@
 #ifndef definicje_h
 #define definicje_h
 
+/* Tworzenie zmiennych bool */
+
 #define true 1
 #define false 0
 
-#define MAPFILE         "files/1.bin"
+/* Pliki z danymi do gry */
 #define MONSTERSFILE    "files/monsters.bin"
+#define ARMORSFILE      "files/armors.bin"
+#define WEAPONSFILE     "files/weapons.bin"
+
+/* Obiekty na mapie */
 
 #define FLOOR           1
 #define WALL            2
@@ -24,6 +30,8 @@
 #define BOX_CH          '&'
 #define TELEPORT_CH     'T'
 
+/* Definicje potrzebne do działania gry */
+
 #define ZERO                0
 #define MAX_X               100 // Maksymalna szerokość miejsc
 #define MAX_Y               100 // Maksymalna wysokość miejsc
@@ -32,6 +40,13 @@
 #define MAX_ITEM_NAME       10 // Maksymalna długość nazwy przedmiotów w grze
 #define MAX_MONSTER_NAME    10 // Maksymalna długość nazwy potwora
 #define MAX_MAP_FILENAME    15 // Maksymalna długość nazwy pliku z mapą
+
+/* Itemy */
+
+#define ARMOR 1
+#define WEAPON 2
+#define KEY 3
+#define
 
 #define won( x, y )  wattron( x, COLOR_PAIR( y ) )
 #define woff( x, y ) wattroff( x, COLOR_PAIR( y ) )

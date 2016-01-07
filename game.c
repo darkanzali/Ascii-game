@@ -359,7 +359,7 @@ void print_map( int map, Player *player, Monster *monsters, Monster_list **fmons
     FILE *file;
     char *mapfile;
 
-    mapfile = world_to_char( "files/", map, ".bin" );
+    mapfile = world_to_char( "maps/", map, ".bin" );
 
     file = fopen( mapfile, "rb" );
     int hei, wid;
