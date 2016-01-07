@@ -60,6 +60,7 @@ int main() {
     WINDOW *mwin;
     WINDOW *twin;
     WINDOW *rwin;
+    WINDOW *ewin;
 
     starty = ( ( wy - hei ) / 2 ) - 2;
     startx = ( ( wx - wid ) / 2 ) - 12;
@@ -70,11 +71,13 @@ int main() {
     mwin = newwin( hei, wid, starty, startx );
     twin = newwin( hei2, wid2, starty2, startx2 );
     rwin = newwin( hei3, wid3, starty3, startx3 );
+    ewin = newwin( hei3, wid3, starty3 + hei3, startx3 );
 
     Windows windows;
     windows.mwin = mwin;
     windows.twin = twin;
     windows.rwin = rwin;
+    windows.ewin = ewin;
 
     /************************/
     /* Deklaracje zmiennych */
@@ -164,6 +167,7 @@ void init_windows( Windows windows ) {
     wclear( windows.mwin );
     wclear( windows.twin );
     wclear( windows.rwin );
+    wclear( windows.ewin );
     printBorder( windows.mwin );
     printBorder( windows.twin );
 
@@ -175,6 +179,7 @@ void init_windows( Windows windows ) {
     wrefresh( windows.mwin );
     wrefresh( windows.twin );
     wrefresh( windows.rwin );
+    wrefresh( windows.ewin );
 }
 
 int start_new_game( WINDOW *win ) {
@@ -217,20 +222,18 @@ int start_new_game( WINDOW *win ) {
             char *name;
             while( ( d = readdir( dir ) ) != NULL ) {
                 if( strcmp( d -> d_name, "." ) != 0 && strcmp( d -> d_name, ".." ) != 0 ) {
-                    printw( "deleting %s\n", d->d_name );
-                    name = calloc( ( strlen( d -> d_name ) + 5 ) + 1, sizeof( char ) );
+                    name = calloc( ( strlen( d -> d_name ) + 5 ) + 2, sizeof( char ) );
                     strcpy( name, "save/" );
                     strcat( name, d -> d_name );
-                    printw( "deleting %s\n", name );
                     if( remove( name ) == -1 ) {
                         endwin();
-                        printf( "Deleting file failed (save/%s)", d -> d_name );
+                        printf( "Deleting file failed (%s)", name );
                         exit( 1 );
                     }
                     free( name );
                 }
             }
-            return false;
+            return true;
         }
     }
 

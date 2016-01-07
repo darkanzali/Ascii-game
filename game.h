@@ -16,7 +16,10 @@ Monster_list *checkIfMonsterNearPlayer( Player *player, Monster_list *fmonster )
 int time_diff( struct timeval start, struct timeval end );
 int more_random( long max );
 void save_game( WINDOW *win, int world, Player player, Monster_list *fmonster, Monster *monsters );
+int load_player( Player *player );
 int load_saved_game( Player *player, Monster *monsters, Monster_list **fmonster, WINDOW *win );
+void check_player_exp( Player *player );
+void print_player_info( WINDOW *win, Player player );
 void print_list( Monster_list *fmonster, WINDOW *win ); //DEBUG
 
 #endif

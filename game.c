@@ -11,13 +11,13 @@
 #include "game.h"
 #include "okna.h"
 
-#define PLAYER_ATK 2
-
 int playGame( int world, Windows w ) {
     WINDOW *win = w.mwin;
     WINDOW *twin = w.twin;
     WINDOW *rwin = w.rwin;
+    WINDOW *ewin = w.ewin;
     printBorder( rwin );
+    printBorder( ewin );
     //WINDOW *listawin = newwin( 10, 30, 0, 0 ); //DEBUG
 
     Player player; // Zmienna przechowująca dane o graczu
@@ -58,7 +58,10 @@ int playGame( int world, Windows w ) {
     gettimeofday( &pStartReg, NULL );  // odpowiednie wydarzenia
     srand( time( NULL ) ); // Inicjalizujemy generator liczb pseudolosowych
 
-    if( !goMenu ) prlife( rwin, player, NULL );
+    if( !goMenu ) {
+        prlife( rwin, player, NULL );
+        print_player_info( ewin, player );
+    }
 
     while( !goMenu ) {
         beginning:
@@ -97,10 +100,14 @@ int playGame( int world, Windows w ) {
                             atakuja = 1; //DEBUG
                             gettimeofday( &pStartAtk, NULL ); // Ustalamy czas ostatniego ataku
                             if( player.attacking -> hp == 0 ) {
+                                player.exp += player.attacking -> exp;
+                                check_player_exp( &player );
+                                print_player_info( ewin, player );
+                                wmove( twin, 1, 1 );
+                                wprintw( twin, "%d ", player.attacking -> exp );
                                 delete_dead_monster( win, &player.attacking, &fmonster_on_map );
                                 player.war = 0;
                                 player.attacking = NULL;
-                                //print_list( fmonster_on_map, listawin );
                             }
                         }
 
@@ -387,9 +394,11 @@ void print_map( int map, Player *player, Monster *monsters, Monster_list **fmons
                     player -> x = j;
                     player -> y = i;
                     player -> fieldch = '.';
-                    player -> atk = PLAYER_ATK;
+                    player -> atk = 2;
                     player -> weapon = ZERO;
                     player -> armor = ZERO;
+                    player -> lvl = 1;
+                    player -> exp = 0;
                     break;
                 case FLOOR:
                     won( win, FLOOR );
@@ -549,6 +558,7 @@ void add_monster( Monster *monsters, Monster_list **fmonster, int id, int uniId,
     new -> weapon   = monsters[ id ].weapon;
     new -> armor    = monsters[ id ].armor;
     new -> fieldch  = monsters[ id ].fieldch;
+    new -> exp      = monsters[ id ].exp;
     new -> war      = 0;
     new -> x        = x;
     new -> y        = y;
@@ -583,6 +593,7 @@ void add_monster_saved( Monster_list mToAdd, Monster_list **fmonster, int uniId 
     new -> weapon   = mToAdd.weapon;
     new -> armor    = mToAdd.armor;
     new -> fieldch  = mToAdd.fieldch;
+    new -> exp      = mToAdd.exp;
     new -> war      = 0;
     new -> x        = mToAdd.x;
     new -> y        = mToAdd.y;
@@ -814,16 +825,22 @@ void save_game( WINDOW *win, int world, Player player, Monster_list *fmonster, M
     free( mons );
 }
 
-int load_saved_game( Player *player, Monster *monsters, Monster_list **fmonster, WINDOW *win ) {
-    int world;
-    char *map, *mons;
+int load_player( Player *player ) {
     if( access( "save/player.bin", F_OK ) == -1 )
         return -1;
 
     FILE *plaf = fopen( "save/player.bin", "rb" );
-
     fread( player, sizeof( Player ), 1, plaf );
     fclose( plaf );
+}
+
+int load_saved_game( Player *player, Monster *monsters, Monster_list **fmonster, WINDOW *win ) {
+    int world;
+    char *map, *mons;
+
+    if( load_player( player ) == -1 )
+        return -1;
+
     world = player -> place;
 
     map = world_to_char( "save/", world, ".bin" );
@@ -908,6 +925,24 @@ int load_saved_game( Player *player, Monster *monsters, Monster_list **fmonster,
 
     free( map );
     free( mons );
+}
+
+void check_player_exp( Player *player ) {
+    /*
+    4xp - lvl2
+    */
+    if( player -> lvl < 2 && player -> exp >= 4 ) {
+        player -> lvl = 2;
+        player -> atk = 4;
+    }
+}
+
+void print_player_info( WINDOW *win, Player player ) {
+    wmove( win, 1, 1 );
+    wprintw( win, "Lvl: %d", player.lvl );
+    wmove( win, 2, 1 );
+    wprintw( win, "Exp: %d", player.exp );
+    wrefresh( win );
 }
 
 void print_list( Monster_list *fmonster, WINDOW *win ) {

@@ -18,6 +18,8 @@ typedef struct { // Gracz
     int armor; // Id zbroi którą nosi gracz
     int fieldch; // Znak na polu na którym stoi gracz
     int war; // Czy gracz walczy z potworem
+    int exp;
+    int lvl;
     struct _mlist *attacking; // Wskaźnik na potwora z którym walczymy
 } Player;
 
@@ -58,6 +60,7 @@ typedef struct _mlist {
     int weapon;
     int armor;
     int fieldch;
+    int exp;
     int war;
     int x;
     int y;
@@ -69,6 +72,7 @@ typedef struct {
     WINDOW *mwin;
     WINDOW *twin;
     WINDOW *rwin;
+    WINDOW *ewin;
 } Windows;
 
 #pragma pack(pop)
