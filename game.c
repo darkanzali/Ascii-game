@@ -448,7 +448,6 @@ void prlife( WINDOW *win, Player player, Monster_list *monster ) {
         wmove( win, 2, 1 );
         wprintw( win, "Twoje" );
     }
-    int d1, d2, d3;
     int perc, colored;
     int i;
     double h = player.hp;
@@ -458,49 +457,23 @@ void prlife( WINDOW *win, Player player, Monster_list *monster ) {
     wmove( win, 3, 1 );
     colored = perc / 10;
 
-    d3 = perc % 10;
-    d2 = ( perc / 10 ) % 10;
-    d1 = ( perc / 100 ) % 10;
+    char *life = l_to_char( player.hp, player.maxhp );
 
     won( win, GREEN );
-    for( i = 1; i <= colored; i++ ) {
-        if( i == 4 || i == 5 || i == 6 || i == 7 ) {
-            if( i == 4 && d1 != 0 ) {
-                wprintw( win, "%d", d1 );
-            } else if( i == 5 && ( ( d1 == 1 ) || ( d1 == 0 && d2 != 0 ) ) ) {
-                wprintw( win, "%d", d2 );
-            } else if( i == 6 ) {
-                wprintw( win, "%d", d3 );
-            } else if( i == 7 ) {
-                wprintw( win, "%c", 37 );
-            } else {
-                wprintw( win, "." );
-            }
-        } else {
-            wprintw( win, "." );
+    for( i = 1; i <= 10; i++ ) {
+        if( i == colored + 1 ) {
+            woff( win, GREEN );
+            won( win, RED );
         }
-    }
-    woff( win, GREEN );
-
-    won( win, RED );
-    for( ; i <= 10; i++ ) {
-        if( i == 4 || i == 5 || i == 6 || i == 7 ) {
-            if( i == 4 && d1 != 0 ) {
-                wprintw( win, "%d", d1 );
-            } else if( i == 5 && ( ( d1 == 1 ) || ( d1 == 0 && d2 != 0 ) ) ) {
-                wprintw( win, "%d", d2 );
-            } else if( i == 6 ) {
-                wprintw( win, "%d", d3 );
-            } else if( i == 7 ) {
-                wprintw( win, "%%" );
-            } else {
-                wprintw( win, "." );
-            }
+        if( i - 1 <= strlen( life ) - 1 ) {
+            wprintw( win, "%c", life[ i - 1 ] );
         } else {
             wprintw( win, "." );
         }
     }
     woff( win, RED );
+
+    free( life );
 
     //5 1
     // Życie potwora
@@ -517,46 +490,18 @@ void prlife( WINDOW *win, Player player, Monster_list *monster ) {
         perc = (double) ( ( h / mh ) * 100 );
         colored = perc / 10;
 
-        d3 = perc % 10;
-        d2 = ( perc / 10 ) % 10;
-        d1 = ( perc / 100 ) % 10;
+        life = l_to_char( monster -> hp, monster -> maxhp );
 
         wprintw( win, "%s", monster -> name );
         wmove( win, 6, 1 );
         won( win, GREEN );
-        for( i = 1; i <= colored; i++ ) {
-            if( i == 4 || i == 5 || i == 6 || i == 7 ) {
-                if( i == 4 && d1 != 0 ) {
-                    wprintw( win, "%d", d1 );
-                } else if( i == 5 && ( ( d1 == 1 ) || ( d1 == 0 && d2 != 0 ) ) ) {
-                    wprintw( win, "%d", d2 );
-                } else if( i == 6 ) {
-                    wprintw( win, "%d", d3 );
-                } else if( i == 7 ) {
-                    wprintw( win, "%c", 37 );
-                } else {
-                    wprintw( win, "." );
-                }
-            } else {
-                wprintw( win, "." );
+        for( i = 1; i <= 10; i++ ) {
+            if( i == colored + 1 ) {
+                woff( win, GREEN );
+                won( win, RED );
             }
-        }
-        woff( win, GREEN );
-
-        won( win, RED );
-        for( ; i <= 10; i++ ) {
-            if( i == 4 || i == 5 || i == 6 || i == 7 ) {
-                if( i == 4 && d1 != 0 ) {
-                    wprintw( win, "%d", d1 );
-                } else if( i == 5 && ( ( d1 == 1 ) || ( d1 == 0 && d2 != 0 ) ) ) {
-                    wprintw( win, "%d", d2 );
-                } else if( i == 6 ) {
-                    wprintw( win, "%d", d3 );
-                } else if( i == 7 ) {
-                    wprintw( win, "%%" );
-                } else {
-                    wprintw( win, "." );
-                }
+            if( i - 1 <= strlen( life ) - 1 ) {
+                wprintw( win, "%c", life[ i - 1 ] );
             } else {
                 wprintw( win, "." );
             }

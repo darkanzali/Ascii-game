@@ -2,6 +2,10 @@
 #include <stdlib.h>
 #include <ncursesw/ncurses.h>
 #include <locale.h>
+#include <dirent.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <string.h>
 
 #include "definicje.h"
 #include "struktury.h"
@@ -90,6 +94,8 @@ int main() {
                 wclear( twin );
                 printBorder( twin );
                 wrefresh( twin );
+                if( !start_new_game( twin ) )
+                    break;
                 do {
                     world = playGame( world, windows );
                 } while( world != -1 );
@@ -169,4 +175,64 @@ void init_windows( Windows windows ) {
     wrefresh( windows.mwin );
     wrefresh( windows.twin );
     wrefresh( windows.rwin );
+}
+
+int start_new_game( WINDOW *win ) {
+    int n = 0;
+    struct dirent *d;
+    DIR *dir = opendir( "save" );
+
+    if( dir == NULL ) {
+        struct stat st = {0};
+        if( stat( "save", &st ) == -1 ) {
+            mkdir( "save", 0755 );
+        } else {
+            endwin();
+            printf( "Save directory corrupted" );
+            exit( 1 );
+        }
+    }
+
+    while ( ( d = readdir( dir ) ) != NULL )
+        if( ++n > 2 )
+            break;
+
+    closedir( dir );
+    if( n <= 2 ) // Folder z zapisami pusty
+        return true;
+    else {
+        wclear( win );
+        printBorder( win );
+        wmove( win, 1, 1 );
+        wprintw( win, "Istnieje zapisana gra, usunąć zapis i zacząć grę od nowa? (t/n)" );
+        wrefresh( win );
+        char c;
+        do {
+            c = getchar();
+        } while( c != 't' && c != 'n' );
+        if( c == 'n' ) {
+            return false;
+        } else {
+            dir = opendir( "save" );
+            char *name;
+            while( ( d = readdir( dir ) ) != NULL ) {
+                if( strcmp( d -> d_name, "." ) != 0 && strcmp( d -> d_name, ".." ) != 0 ) {
+                    printw( "deleting %s\n", d->d_name );
+                    name = calloc( ( strlen( d -> d_name ) + 5 ) + 1, sizeof( char ) );
+                    strcpy( name, "save/" );
+                    strcat( name, d -> d_name );
+                    printw( "deleting %s\n", name );
+                    if( remove( name ) == -1 ) {
+                        endwin();
+                        printf( "Deleting file failed (save/%s)", d -> d_name );
+                        exit( 1 );
+                    }
+                    free( name );
+                }
+            }
+            return false;
+        }
+    }
+
+    return true;
 }

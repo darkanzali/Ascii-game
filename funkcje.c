@@ -48,3 +48,47 @@ char *world_to_char( char dir[], int number, char ext[] ) {
 
 	return map;
 }
+
+char *l_to_char( int hp, int maxhp ) {
+	char *text = malloc( 11 * sizeof( char ) );
+	int len, tmp, i;
+
+	tmp = hp;
+	i = 0;
+	do {
+		i++;
+		tmp /= 10;
+	} while( tmp != 0 );
+
+	text[ i ] = '/';
+	text[ i + 1 ] = 0;
+	i--;
+	tmp = hp;
+	while( i >= 0 ) {
+		text[ i ] = ( tmp % 10 ) + '0';
+		tmp /= 10;
+		i--;
+	}
+
+	len = strlen( text );
+	i = len;
+	len--;
+	tmp = maxhp;
+
+	do {
+		i++;
+		tmp /=10;
+	} while( tmp != 0 );
+
+	tmp = maxhp;
+	text[ i ] = 0;
+	i--;
+
+	while( i > len ) {
+		text[ i ] = ( tmp % 10 ) + '0';
+		tmp /= 10;
+		i--;
+	}
+
+	return text;
+}

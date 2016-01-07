@@ -29,6 +29,7 @@ typedef struct { // Potwór
     int weapon; // Id broni w ręku potwora
     int armor; // Id zbroi którą nosi potwór
     int fieldch; // Znak na polu na którym stoi potwór
+    int exp;
 } Monster;
 
 typedef struct { // Broń
