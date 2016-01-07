@@ -1,3 +1,8 @@
+/******************************/
+/* Gra ASCII "Przygody kloca" */
+/* © 2016 Kamil Poniatowski   */
+/******************************/
+
 #include <ncursesw/ncurses.h>
 #include "definicje.h"
 

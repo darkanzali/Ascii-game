@@ -1,3 +1,8 @@
+/******************************/
+/* Gra ASCII "Przygody kloca" */
+/* © 2016 Kamil Poniatowski   */
+/******************************/
+
 #ifndef game_h
 #define game_h
 

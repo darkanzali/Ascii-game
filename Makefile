@@ -1,3 +1,8 @@
+################################
+## Gra ASCII "Przygody kloca" ##
+## © 2016 Kamil Poniatowski   ##
+################################
+
 default: gra
 
 gra.o: main.c

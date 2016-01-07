@@ -1,8 +1,13 @@
-#include <sys/time.h> /* struct timeval, select() */
-#include <termios.h> /* tcgetattr(), tcsetattr() */
-#include <stdlib.h> /* atexit(), exit() */
-#include <unistd.h> /* read() */
-#include <stdio.h> /* printf() */
+/******************************/
+/* Gra ASCII "Przygody kloca" */
+/* © 2016 Kamil Poniatowski   */
+/******************************/
+
+#include <sys/time.h>
+#include <termios.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <stdio.h>
 #include <ncursesw/ncurses.h>
 #include <string.h>
 

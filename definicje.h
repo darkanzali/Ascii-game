@@ -1,8 +1,6 @@
 #ifndef definicje_h
 #define definicje_h
 
-#define test 1
-
 /* Tworzenie zmiennych bool */
 
 #define true 1
