@@ -873,6 +873,9 @@ int load_saved_game( Player *player, Monster *monsters, Monster_list **fmonster,
     fread( &y, sizeof( int ), 1, mapf );
     fread( &x, sizeof( int ), 1, mapf );
 
+    wclear( win );
+    printBorder( win );
+
     int i, j;
     Map_field m;
     int mCount = 0;

@@ -46,20 +46,24 @@
 #define ARMOR 1
 #define WEAPON 2
 #define KEY 3
-#define
+#define POTION 4
+
+/* Funkcje do włączania kolorów */
 
 #define won( x, y )  wattron( x, COLOR_PAIR( y ) )
 #define woff( x, y ) wattroff( x, COLOR_PAIR( y ) )
 
-/*************************
-#define COLOR_BLACK     0
-#define COLOR_RED       1
-#define COLOR_GREEN     2
-#define COLOR_YELLOW    3
-#define COLOR_BLUE      4
-#define COLOR_MAGENTA   5
-#define COLOR_CYAN      6
-#define COLOR_WHITE     7
-**************************/
+/****************
+Kolory:
+
+COLOR_BLACK     0
+COLOR_RED       1
+COLOR_GREEN     2
+COLOR_YELLOW    3
+COLOR_BLUE      4
+COLOR_MAGENTA   5
+COLOR_CYAN      6
+COLOR_WHITE     7
+*****************/
 
 #endif

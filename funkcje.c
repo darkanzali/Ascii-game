@@ -44,7 +44,7 @@ char *world_to_char( char dir[], int number, char ext[] ) {
     }
     id[ 0 ] = number + '0';
 
-    char *map = NULL;
+    char *map;
 	map = malloc( MAX_MAP_FILENAME * sizeof( char ) );
 
     strcpy( map, dir );
