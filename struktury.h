@@ -25,6 +25,7 @@ typedef struct { // Gracz
     int war; // Czy gracz walczy z potworem
     int exp;
     int lvl;
+    int key;
     struct _mlist *attacking; // Wskaźnik na potwora z którym walczymy
 } Player;
 
@@ -42,12 +43,12 @@ typedef struct { // Potwór
 typedef struct { // Broń
     int atk; // Moc ataku broni
     char name[ MAX_ITEM_NAME ]; // Nazwa broni
-} Weapons;
+} Weapon;
 
 typedef struct { // Zbroja
     int def; // Moc absorbowania ataku przez zbroję
     char name[ MAX_ITEM_NAME ]; // Nazwa zbroi
-} Armors;
+} Armor;
 
 typedef struct {
     int type;

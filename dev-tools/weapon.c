@@ -7,7 +7,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#define ILE 7
+#define ILE 6
 #define MAX_NAME 10
 
 #pragma pack(push)
@@ -54,10 +54,6 @@ int main() {
     w[ 5 ].atk = 20;
     strcpy( w[ 5 ].name, "Miecz" );
     w[ 5 ].weight = 0;
-
-    w[ 6 ].atk = -1;
-    strcpy( w[ 6 ].name, "END" );
-    w[ 6 ].weight = -1;
 
     fwrite( w, sizeof( Weapon ), ILE, file );
 

@@ -14,7 +14,9 @@ void prplayer_xy( WINDOW *win, int y, int x ); // Funkcja wypisująca gracza na 
 void prfch_xy( WINDOW *win, char ch, int y, int x ); // Funkcja wypisująca znak na mapie
 void prmon_xy( WINDOW *win, Monster *monsters, int id, int y, int x ); // Funkcja wypisująca potwora na mapie
 void prlife( WINDOW *win, Player player, Monster_list *monster );
-void load_monsters( Monster **monsters, WINDOW *win ); // Funkcja wczytująca potwory z pliku do tablicy
+void load_monsters( Monster **monsters ); // Funkcja wczytująca potwory z pliku do tablicy
+void load_weapons( Weapon **weapons );
+void load_armors( Armor **armors );
 void add_monster( Monster *monsters, Monster_list **fmonster, int id, int uniId, int y, int x ); // Funkcja dodająca potwora na mapę
 void add_monster_saved( Monster_list mToAdd, Monster_list **fmonster, int uniId ); // Funkcja dodająca potwora wczytanego z zapisu
 void delete_dead_monster( WINDOW *win, Monster_list **pointer, Monster_list **fmonster ); // Funkcja usuwająca potwora z listy

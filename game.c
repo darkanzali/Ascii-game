@@ -15,6 +15,7 @@
 #include "struktury.h"
 #include "game.h"
 #include "okna.h"
+#include "funkcje.h"
 
 int playGame( int world, Windows w ) {
     WINDOW *win = w.mwin;
@@ -27,6 +28,8 @@ int playGame( int world, Windows w ) {
     Player player; // Zmienna przechowująca dane o graczu
     Monster *monsters; // Wskaźnik na tablicę w której będą zapisane wszystkie potwory
     Monster_list *fmonster_on_map, *pointer; // Wskaźnik na pierwszy element listy potworów na mapie
+    Weapon *weapons;
+    Armor *armors;
     Box_list *fbox = NULL;
     fmonster_on_map = NULL; // Ustawiamy wskaźnik na nic
     pointer = NULL; // Ustawiamy wskaźnik na nic
@@ -44,7 +47,9 @@ int playGame( int world, Windows w ) {
     wclear( win ); // Czyścimy główne okno
     printBorder( win ); // Wypisujemy ramkę głównego okna
     init_colors(); // Inicjalizujemy kolory
-    load_monsters( &monsters, twin ); // Wczytujemy potwory z pliku z potworami
+    load_monsters( &monsters ); // Wczytujemy potwory z pliku z potworami
+    load_armors( &armors );
+    load_weapons( &weapons );
     wmove( twin, 1, 1 ); // Przemieszczamy karetkę w lewy górny róg ekranu
     if( world != -1 ) {
         print_map( world, &player, monsters, &fmonster_on_map, &fbox, win, twin ); // Wypisujemy mapę
@@ -408,6 +413,7 @@ void print_map( int map, Player *player, Monster *monsters, Monster_list **fmons
                     player -> armor = ZERO;
                     player -> lvl = 1;
                     player -> exp = 0;
+                    player -> key = -1;
                     break;
                 case FLOOR:
                     won( win, FLOOR );
@@ -590,7 +596,7 @@ void prlife( WINDOW *win, Player player, Monster_list *monster ) {
     wrefresh( win );
 }
 
-void load_monsters( Monster **monsters, WINDOW *win ) {
+void load_monsters( Monster **monsters ) {
     FILE *file;
     file = fopen( MONSTERSFILE, "rb" );
     int count;
@@ -598,6 +604,14 @@ void load_monsters( Monster **monsters, WINDOW *win ) {
     *monsters = malloc( count * sizeof( Monster ) );
     fread( *monsters, sizeof( Monster ), count, file );
     fclose( file );
+}
+
+void load_weapons( Weapon **weapons ) {
+    
+}
+
+void load_armors( Armor **armors ) {
+
 }
 
 void add_monster( Monster *monsters, Monster_list **fmonster, int id, int uniId, int y, int x ) {

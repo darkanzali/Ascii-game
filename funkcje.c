@@ -35,7 +35,7 @@ int kbhit(void)
 	return status;
 }
 
-char *world_to_char( char dir[], int number, char ext[] ) {
+char *world_to_char( char *dir, int number, char *ext ) {
 	char id[ 3 ] = { 0, 0, 0 };
 
     if( number > 9 ) {
