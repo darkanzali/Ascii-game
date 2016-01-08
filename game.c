@@ -23,11 +23,11 @@ int playGame( int world, Windows w ) {
     WINDOW *ewin = w.ewin;
     printBorder( rwin );
     printBorder( ewin );
-    //WINDOW *listawin = newwin( 10, 30, 0, 0 ); //DEBUG
 
     Player player; // Zmienna przechowująca dane o graczu
     Monster *monsters; // Wskaźnik na tablicę w której będą zapisane wszystkie potwory
     Monster_list *fmonster_on_map, *pointer; // Wskaźnik na pierwszy element listy potworów na mapie
+    Box_list *fbox = NULL;
     fmonster_on_map = NULL; // Ustawiamy wskaźnik na nic
     pointer = NULL; // Ustawiamy wskaźnik na nic
     bool goMenu = false; // Zmienna przechowująca dane czy chcemy wyjść do menu i ustawiamy że nie chcemy
@@ -47,7 +47,7 @@ int playGame( int world, Windows w ) {
     load_monsters( &monsters, twin ); // Wczytujemy potwory z pliku z potworami
     wmove( twin, 1, 1 ); // Przemieszczamy karetkę w lewy górny róg ekranu
     if( world != -1 ) {
-        print_map( world, &player, monsters, &fmonster_on_map, win, twin ); // Wypisujemy mapę
+        print_map( world, &player, monsters, &fmonster_on_map, &fbox, win, twin ); // Wypisujemy mapę
     } else {
         int load = load_saved_game( &player, monsters, &fmonster_on_map, win );
         if( load == -1 ) {
@@ -356,17 +356,21 @@ int playGame( int world, Windows w ) {
     while( fmonster_on_map != NULL ) {
         clear_list( &fmonster_on_map );
     }
+    while( fbox != NULL ) {
+        clear_list_box( &fbox );
+    }
 
     return nworld;
 }
 
-void print_map( int map, Player *player, Monster *monsters, Monster_list **fmonster_on_map, WINDOW *win, WINDOW *twin ) {
+void print_map( int map, Player *player, Monster *monsters, Monster_list **fmonster_on_map, Box_list **fbox, WINDOW *win, WINDOW *twin ) {
     FILE *file;
     char *mapfile;
 
     mapfile = world_to_char( "maps/", map, ".bin" );
 
     file = fopen( mapfile, "rb" );
+    free( mapfile );
     int hei, wid;
     int mCount = 0;
     fread( &hei, sizeof( int ), 1, file );
@@ -434,6 +438,67 @@ void print_map( int map, Player *player, Monster *monsters, Monster_list **fmons
         }
     }
     fclose( file );
+    mapfile = world_to_char( "maps/", map, "i.bin" );
+    file = fopen( mapfile, "rb" );
+    free( mapfile );
+
+    int x, y, boxes, objects;
+    Item item;
+
+    fread( &boxes, sizeof( int ), 1, file );
+
+    for( i = 0; i < boxes; i++ ) {
+        Item_list *fitem = NULL;
+        fread( &y, sizeof( int ), 1, file );
+        fread( &x, sizeof( int ), 1, file );
+        fread( &objects, sizeof( int ), 1, file );
+        for( j = 0; j < objects; j++ ) {
+            fread( &item, sizeof( Item ), 1, file );
+            add_to_item_list( &fitem, item );
+        }
+        add_box_to_list( fbox, y, x, fitem );
+    }
+    refresh();
+    fclose( file );
+}
+
+void add_to_item_list( Item_list **fitem, Item item ) {
+    Item_list *wsk, *new;
+    if( *fitem == NULL ) {
+        *fitem = malloc( sizeof( Item_list ) );
+        new = *fitem;
+        new -> next = NULL;
+    } else {
+        wsk = *fitem;
+        while( wsk -> next != NULL )
+            wsk = wsk -> next;
+        new = malloc( sizeof( Item_list ) );
+        wsk -> next = new;
+        new -> next = NULL;
+    }
+
+    new -> type = item.type;
+    new -> id   = item.id;
+}
+
+void add_box_to_list( Box_list **fbox, int y, int x, Item_list *fitem ) {
+    Box_list *wsk, *new;
+    if( *fbox == NULL ) {
+        *fbox = malloc( sizeof( Box_list ) );
+        new = *fbox;
+        new -> next = NULL;
+    } else {
+        wsk = *fbox;
+        while( wsk -> next != NULL )
+            wsk = wsk -> next;
+        new = malloc( sizeof( Box_list ) );
+        new -> next = NULL;
+        wsk -> next = new;
+    }
+
+    new -> x = x;
+    new -> y = y;
+    new -> fitem = fitem;
 }
 
 void prplayer_xy( WINDOW *win, int y, int x ) {
@@ -636,9 +701,26 @@ void delete_dead_monster( WINDOW *win, Monster_list **pointer, Monster_list **fm
 void clear_list( Monster_list **monster ) {
     Monster_list *Next;
     while( *monster != NULL ) {
-        Next = (*monster) -> next;
+        Next = ( *monster ) -> next;
         free( *monster );
         *monster = Next;
+    }
+}
+
+void clear_list_box( Box_list **fbox ) {
+    Box_list *Next;
+    Item_list *Fitem, *NextItem;
+    while( *fbox != NULL ) {
+        Fitem = ( *fbox ) -> fitem;
+        while( Fitem != NULL ) {
+            NextItem = Fitem -> next;
+            free( Fitem );
+            Fitem = NextItem;
+        }
+
+        Next = ( *fbox ) -> next;
+        free( *fbox );
+        *fbox = Next;
     }
 }
 
@@ -947,9 +1029,45 @@ void check_player_exp( Player *player ) {
 
 void print_player_info( WINDOW *win, Player player ) {
     wmove( win, 1, 1 );
-    wprintw( win, "Lvl: %d", player.lvl );
+
+    won( win, GREEN );
+    wprintw( win, "Lvl:" );
+    woff( win, GREEN );
+
+    wprintw( win, " %d", player.lvl );
     wmove( win, 2, 1 );
-    wprintw( win, "Exp: %d", player.exp );
+
+    won( win, GREEN );
+    wprintw( win, "Exp:" );
+    woff( win, GREEN );
+
+    wprintw( win, " %d", player.exp );
+    wmove( win, 3, 1 );
+
+    won( win, GREEN );
+    wprintw( win, "Zbroja:" );
+    woff( win, GREEN );
+
+    wmove( win, 4, 1 );
+    wprintw( win, "nazwa" );
+    wmove( win, 5, 1 );
+
+    won( win, GREEN );
+    wprintw( win, "Def:" );
+    woff( win, GREEN );
+
+    wmove( win, 6, 1 );
+
+    won( win, GREEN );
+    wprintw( win, "Broń:" );
+    woff( win, GREEN );
+
+    wmove( win, 7, 1 );
+    wprintw( win, "nazwa" );
+    wmove( win, 8, 1 );
+    won( win, GREEN );
+    wprintw( win, "Atk:" );
+    woff( win, GREEN );
     wrefresh( win );
 }
 
@@ -962,5 +1080,23 @@ void print_list( Monster_list *fmonster, WINDOW *win ) {
         wprintw( win, "%p %p %p\n", wsk->prev, wsk, wsk -> next );
         wsk = wsk -> next;
     }
-    wrefresh(win);
+    wrefresh( win );
+}
+
+void print_box_list( Box_list *fbox ) {
+    Box_list *wsk;
+    Item_list *iwsk;
+    wsk = fbox;
+    printw( "start\n");
+    while( wsk != NULL ) {
+        iwsk = wsk -> fitem;
+        printw( "Box x:%d y:%d\n", wsk -> x, wsk -> y );
+        while( iwsk != NULL ) {
+            printw( "Item type: %d id: %d\n", iwsk -> type, iwsk -> id );
+            iwsk = iwsk -> next;
+        }
+        wsk = wsk -> next;
+    }
+    printw( "end\n");
+    refresh();
 }

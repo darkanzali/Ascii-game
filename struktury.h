@@ -80,6 +80,24 @@ typedef struct {
     WINDOW *ewin;
 } Windows;
 
+typedef struct _blist {
+    int y;
+    int x;
+    struct _ilist *fitem;
+    struct _blist *next;
+} Box_list;
+
+typedef struct _ilist {
+    int type;
+    int id;
+    struct _ilist *next;
+} Item_list;
+
+typedef struct {
+    int type;
+    int id;
+} Item;
+
 #pragma pack(pop)
 
 #endif

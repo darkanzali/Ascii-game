@@ -13,7 +13,7 @@
 #pragma pack(push)
 #pragma pack(1)
 
-typedef struct { // Potwór
+typedef struct { // Skrzynka
     int type;
     int id;
 } Item;
@@ -34,14 +34,14 @@ int main( int argc, char *argv[] ) {
 
     printf( "Ile skrzynek dodajemy? " );
     scanf( "%d", &many );
-    many++;
+    //many++;
 
     fwrite( &many, sizeof( int ), 1, file );
 
-    printf( "Wpisuj dla %d kolejnych skrzynek:\n", many - 1 );
+    printf( "Wpisuj dla %d kolejnych skrzynek:\n", many );
     printf( "y x ilosc_obiektow_w_niej\n" );
-    printf( "    rodzaj obiektu i jego numer lub dla potionow ile regeneruja zycia\n" );
-    for( i = 0; i < many - 1; i++ ){
+    printf( "potem type i id\n" );
+    for( i = 0; i < many; i++ ){
         scanf( "%d %d %d", &y, &x, &obj );
         printf( "dodajemy %d rzeczy do skrzynki o wspolrzednych y: %d, x: %d\n", obj, y, x );
         fwrite( &y, sizeof( int ), 1, file );
@@ -55,9 +55,9 @@ int main( int argc, char *argv[] ) {
         }
     }
 
-    it.type = -1;
-    it.id   = -1;
-    fwrite( &it, sizeof( Item ), 1, file );
+    //it.type = -1;
+    //it.id   = -1;
+    //fwrite( &it, sizeof( Item ), 1, file );
 
     fclose( file );
 

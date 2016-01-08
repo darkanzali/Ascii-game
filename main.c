@@ -41,6 +41,7 @@ int main() {
     int hei = 22, wid = 82; // Wysokość i szerokość okienka głównego
     int hei2 = 4, wid2 = wid; // Wysokość i szerokość okienka tekstowego
     int hei3 = 8, wid3 = 12;
+    int hei4 = 10, wid4 = wid3;
     int world; // Aktualny świat
 
     getmaxyx( stdscr, wy, wx ); // Pobranie wysokości i szerokości terminala
@@ -76,7 +77,7 @@ int main() {
     mwin = newwin( hei, wid, starty, startx );
     twin = newwin( hei2, wid2, starty2, startx2 );
     rwin = newwin( hei3, wid3, starty3, startx3 );
-    ewin = newwin( hei3, wid3, starty3 + hei3, startx3 );
+    ewin = newwin( hei4, wid4, starty3 + hei3, startx3 );
 
     Windows windows;
     windows.mwin = mwin;

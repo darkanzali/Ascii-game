@@ -7,7 +7,9 @@
 #define game_h
 
 int playGame( int world, Windows w );
-void print_map( int map, Player *player, Monster *monsters, Monster_list **fmonster_on_map, WINDOW *win, WINDOW *twin ); // Funkcja do wypisania całej mapy
+void print_map( int map, Player *player, Monster *monsters, Monster_list **fmonster_on_map, Box_list **fbox, WINDOW *win, WINDOW *twin ); // Funkcja do wypisania całej mapy
+void add_to_item_list( Item_list **fitem, Item item );
+void add_box_to_list( Box_list **fbox, int y, int x, Item_list *fitem );
 void prplayer_xy( WINDOW *win, int y, int x ); // Funkcja wypisująca gracza na mapie
 void prfch_xy( WINDOW *win, char ch, int y, int x ); // Funkcja wypisująca znak na mapie
 void prmon_xy( WINDOW *win, Monster *monsters, int id, int y, int x ); // Funkcja wypisująca potwora na mapie
@@ -17,6 +19,7 @@ void add_monster( Monster *monsters, Monster_list **fmonster, int id, int uniId,
 void add_monster_saved( Monster_list mToAdd, Monster_list **fmonster, int uniId ); // Funkcja dodająca potwora wczytanego z zapisu
 void delete_dead_monster( WINDOW *win, Monster_list **pointer, Monster_list **fmonster ); // Funkcja usuwająca potwora z listy
 void clear_list( Monster_list **monster ); // Funkcja czyszcząca listę
+void clear_list_box( Box_list **fbox );
 Monster_list *checkIfMonsterNearPlayer( Player *player, Monster_list *fmonster ); // Funkcja sprawdzająca czy potwór jest obok gracza
 int time_diff( struct timeval start, struct timeval end );
 int more_random( long max );
@@ -26,5 +29,6 @@ int load_saved_game( Player *player, Monster *monsters, Monster_list **fmonster,
 void check_player_exp( Player *player );
 void print_player_info( WINDOW *win, Player player );
 void print_list( Monster_list *fmonster, WINDOW *win ); //DEBUG
+void print_box_list( Box_list *fbox ); // DEBUG
 
 #endif
