@@ -48,11 +48,11 @@ int main() {
     a[ 3 ].weight = 0;
 
     a[ 4 ].def = 10;
-    strcpy( a[ 4 ].name, "Płytowy" );
+    strcpy( a[ 4 ].name, "Płytowa" );
     a[ 4 ].weight = 0;
 
     a[ 5 ].def = 20;
-    strcpy( a[ 5 ].name, "Platynowy" );
+    strcpy( a[ 5 ].name, "Platynowa" );
     a[ 5 ].weight = 0;
 
     fwrite( a, sizeof( Armor ), ILE, file );

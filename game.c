@@ -43,6 +43,7 @@ int playGame( int world, Windows w ) {
     int atkStren; // Zmienna na siłę ataku
     int c; // Zmienna na wczytany znak z klawiatury
     int nworld = -1;
+    int max_worlds;
 
     wclear( win ); // Czyścimy główne okno
     printBorder( win ); // Wypisujemy ramkę głównego okna
@@ -50,8 +51,12 @@ int playGame( int world, Windows w ) {
     load_monsters( &monsters ); // Wczytujemy potwory z pliku z potworami
     load_armors( &armors );
     load_weapons( &weapons );
+    load_maxworlds( &max_worlds );
     wmove( twin, 1, 1 ); // Przemieszczamy karetkę w lewy górny róg ekranu
+    load_player( &player );
     if( world != -1 ) {
+        if( world == 1 );
+            init_player( &player );
         print_map( world, &player, monsters, &fmonster_on_map, &fbox, win, twin ); // Wypisujemy mapę
     } else {
         int load = load_saved_game( &player, monsters, &fmonster_on_map, win );
@@ -169,6 +174,12 @@ int playGame( int world, Windows w ) {
                             prfch_xy( win, FLOOR_CH, player.y - 1, player.x );
                             fieldToGo = FLOOR_CH;
                         }
+                        if( fieldToGo == DOOR_CH && player.key == world ) {
+                            prfch_xy( win, FLOOR_CH, player.y - 1, player.x );
+                            player.key = 0;
+                            print_player_info( ewin, player, armors, weapons );
+                            fieldToGo = FLOOR_CH;
+                        }
                         if( fieldToGo == FLOOR_CH || fieldToGo == STOP_MONSTER_CH ) {
                             player.y--;
                             chtype sav = mvwinch( win, player.y, player.x );
@@ -176,8 +187,13 @@ int playGame( int world, Windows w ) {
                             prfch_xy( win, player.fieldch, player.y + 1, player.x );
                             player.fieldch = ( sav & A_CHARTEXT );
                         }
-                        if( fieldToGo == TELEPORT_CH )
-                            return world + 1;
+                        if( fieldToGo == TELEPORT_CH ) {
+                            if( world == max_worlds )
+                                nworld = -2;
+                            else
+                                nworld = world + 1;
+                            goMenu = true;
+                        }
                     }
                     break;
                 case KEY_DOWN: // Down
@@ -189,6 +205,12 @@ int playGame( int world, Windows w ) {
                             prfch_xy( win, FLOOR_CH, player.y + 1, player.x );
                             fieldToGo = FLOOR_CH;
                         }
+                        if( fieldToGo == DOOR_CH && player.key == world ) {
+                            prfch_xy( win, FLOOR_CH, player.y + 1, player.x );
+                            player.key = 0;
+                            print_player_info( ewin, player, armors, weapons );
+                            fieldToGo = FLOOR_CH;
+                        }
                         if( fieldToGo == FLOOR_CH || fieldToGo == STOP_MONSTER_CH ) {
                             player.y++;
                             chtype sav = mvwinch( win, player.y, player.x );
@@ -196,8 +218,13 @@ int playGame( int world, Windows w ) {
                             prfch_xy( win, player.fieldch, player.y - 1, player.x );
                             player.fieldch = ( sav & A_CHARTEXT );
                         }
-                        if( fieldToGo == TELEPORT_CH )
-                            return world + 1;
+                        if( fieldToGo == TELEPORT_CH ) {
+                            if( world == max_worlds )
+                                nworld = -2;
+                            else
+                                nworld = world + 1;
+                            goMenu = true;
+                        }
                     }
                     break;
                 case KEY_RIGHT: // Right
@@ -209,6 +236,12 @@ int playGame( int world, Windows w ) {
                             prfch_xy( win, FLOOR_CH, player.y, player.x + 1 );
                             fieldToGo = FLOOR_CH;
                         }
+                        if( fieldToGo == DOOR_CH && player.key == world ) {
+                            prfch_xy( win, FLOOR_CH, player.y, player.x + 1 );
+                            player.key = 0;
+                            print_player_info( ewin, player, armors, weapons );
+                            fieldToGo = FLOOR_CH;
+                        }
                         if( fieldToGo == FLOOR_CH || fieldToGo == STOP_MONSTER_CH ) {
                             player.x++;
                             chtype sav = mvwinch( win, player.y, player.x );
@@ -216,8 +249,13 @@ int playGame( int world, Windows w ) {
                             prfch_xy( win, player.fieldch, player.y, player.x - 1 );
                             player.fieldch = ( sav & A_CHARTEXT );
                         }
-                        if( fieldToGo == TELEPORT_CH )
-                            return world + 1;
+                        if( fieldToGo == TELEPORT_CH ) {
+                            if( world == max_worlds )
+                                nworld = -2;
+                            else
+                                nworld = world + 1;
+                            goMenu = true;
+                        }
                     }
                     break;
                 case KEY_LEFT: // Left
@@ -229,6 +267,12 @@ int playGame( int world, Windows w ) {
                             prfch_xy( win, FLOOR_CH, player.y, player.x - 1 );
                             fieldToGo = FLOOR_CH;
                         }
+                        if( fieldToGo == DOOR_CH && player.key == world ) {
+                            prfch_xy( win, FLOOR_CH, player.y, player.x - 1 );
+                            player.key = 0;
+                            print_player_info( ewin, player, armors, weapons );
+                            fieldToGo = FLOOR_CH;
+                        }
                         if( fieldToGo == FLOOR_CH || fieldToGo == STOP_MONSTER_CH ) {
                             player.x--;
                             chtype sav = mvwinch( win, player.y, player.x );
@@ -237,7 +281,10 @@ int playGame( int world, Windows w ) {
                             player.fieldch = ( sav & A_CHARTEXT );
                         }
                         if( fieldToGo == TELEPORT_CH ) {
-                            nworld = world + 1;
+                            if( world == max_worlds )
+                                nworld = -2;
+                            else
+                                nworld = world + 1;
                             goMenu = true;
                         }
                     }
@@ -257,13 +304,20 @@ int playGame( int world, Windows w ) {
         // Kończymy sprawdzanie czy gracz jest w trakcie walki
 
         // Jeżeli gracz nie jest w trakcie walki i ma poniżej połowy życia to regenerujemy życie
-        if( ( player.war == 0 ) && ( player.hp < player.maxhp / 2 ) ) {
+        if( ( player.war == 0 ) && ( player.hp < player.maxhp ) ) {
             breakTime = time_diff( pStartReg, EndTime ); // Liczymy ile czasu zostało od ostatniej regeneracji
             if( breakTime > 1000 ) { // Jeżeli od ostatniej regeneracji minęła sekunda to regenerujemy
-                if( more_random( 2 ) == 2 ) // Gracz ma ~33% szans na to że zregeneruje mu się życie w tej sekundzie
+                if( player.hp < player.maxhp / 2 ) {
+                    if( more_random( 1 ) == 1 ) // Gracz ma 50% szans na to że zregeneruje mu się życie w tej sekundzie
+                        player.hp++;
+                    if( player.hp > player.maxhp / 2 ) player.hp = player.maxhp / 2;
+                    gettimeofday( &pStartReg, NULL );
+                } else {
+                    if( more_random( 2 ) == 1 ) // Gracz ma ~33% szans na to że zregeneruje mu się życie w tej sekundzie
                     player.hp++;
-                if( player.hp > player.maxhp ) player.hp = player.maxhp / 2;
-                gettimeofday( &pStartReg, NULL );
+                    if( player.hp > player.maxhp ) player.hp = player.maxhp;
+                    gettimeofday( &pStartReg, NULL );
+                }
             }
         }
         // Kończymy regenerowanie życia
@@ -432,22 +486,18 @@ void print_map( int map, Player *player, Monster *monsters, Monster_list **fmons
                     wprintw( win, "%c", PLAYER_CH );
                     woff( win, PLAYER );
                     player -> place = map;
-                    player -> hp = 30;
-                    player -> maxhp = 30;
                     player -> x = j;
                     player -> y = i;
-                    player -> fieldch = '.';
-                    player -> atk = 2;
-                    player -> weapon = ZERO;
-                    player -> armor = ZERO;
-                    player -> lvl = 1;
-                    player -> exp = 0;
-                    player -> key = -1;
                     break;
                 case FLOOR:
                     won( win, FLOOR );
                     wprintw( win, "%c", FLOOR_CH );
                     woff( win, FLOOR );
+                    break;
+                case DOOR:
+                    won( win, TELEPORT );
+                    wprintw( win, "%c", DOOR_CH );
+                    woff( win, TELEPORT );
                     break;
                 case MONSTER:
                     won( win, MONSTER );
@@ -877,6 +927,9 @@ void save_game( WINDOW *win, int world, Player player, Monster_list *fmonster, M
 
     i--;
 
+    j = 80;
+    i = 20;
+
     int x = j, y = i;
 
     fwrite( &i, sizeof( int ), 1, mapf );
@@ -953,6 +1006,18 @@ int load_player( Player *player ) {
     fclose( plaf );
 }
 
+void init_player( Player *player ) {
+    player -> hp = 30;
+    player -> maxhp = 30;
+    player -> fieldch = '.';
+    player -> atk = 2;
+    player -> weapon = ZERO;
+    player -> armor = ZERO;
+    player -> lvl = 1;
+    player -> exp = 0;
+    player -> key = 0;
+}
+
 int load_saved_game( Player *player, Monster *monsters, Monster_list **fmonster, WINDOW *win ) {
     int world;
     char *map, *mons;
@@ -1019,6 +1084,11 @@ int load_saved_game( Player *player, Monster *monsters, Monster_list **fmonster,
                     won( win, FLOOR );
                     wprintw( win, "%c", FLOOR_CH );
                     woff( win, FLOOR );
+                    break;
+                case DOOR:
+                    won( win, TELEPORT );
+                    wprintw( win, "%c", DOOR_CH );
+                    woff( win, TELEPORT );
                     break;
                 case MONSTER:
                     won( win, MONSTER );
@@ -1111,6 +1181,13 @@ void print_player_info( WINDOW *win, Player player, Armor *armors, Weapon *weapo
     wprintw( win, "      " );
     wmove( win, 8, 5 );
     wprintw( win, " %d", weapons[ player.weapon ].atk );
+    wmove( win, 9, 1 );
+    wprintw( win, "          " );
+    wmove( win, 9, 1 );
+    won( win, GREEN );
+    wprintw( win, "Klucz:" );
+    woff( win, GREEN );
+    wprintw( win, " %d", player.key );
 
     wrefresh( win );
 }
@@ -1151,6 +1228,17 @@ Box_list *find_box( Box_list **fbox, int y, int x ) {
         wsk = wsk -> next;
 
     return wsk;
+}
+
+
+void load_maxworlds( int *max_worlds ) {
+    int worlds, i = 0;
+    char c;
+    char number[ 5 ];
+    FILE *file = fopen( "maps/worlds", "r" );
+    while ( ( c = fgetc( file ) ) != EOF )
+        number[ i++ ] = (char) c;
+    *max_worlds = atoi( number );
 }
 
 void print_list( Monster_list *fmonster, WINDOW *win ) {

@@ -21,6 +21,7 @@
 
 void info_help( WINDOW *win );
 void init_windows( Windows windows );
+void print_ending( WINDOW *win );
 int main() {
     /*****************/
     /* Inicjalizacja */
@@ -107,7 +108,10 @@ int main() {
                     break;
                 do {
                     world = playGame( world, windows );
-                } while( world != -1 );
+                } while( world != -1 && world != -2 );
+                init_windows( windows );
+                if( world == -2 )
+                    print_ending( mwin );
                 endGame = false;
                 break;
             case 2:
@@ -117,7 +121,10 @@ int main() {
                 wrefresh( twin );
                 do {
                     world = playGame( world, windows );
-                } while( world != -1 );
+                } while( world != -1 && world != -2 );
+                init_windows( windows );
+                if( world == -2 )
+                    print_ending( mwin );
                 endGame = false;
                 break;
             case 3:
@@ -149,18 +156,34 @@ void info_help( WINDOW *win) {
     wmove( win, 3, 2 );
     wprintw( win, "Twoja postać jest oznaczona symbolem @" );
     wmove( win, 4, 2 );
-    wprintw( win, "Potwory są koloru brązowego i są oznaczone pierwszą literą nazwy" );
+    wprintw( win, "Potwory są koloru różowego i są oznaczone pierwszą literą nazwy. Będziesz grał" );
     wmove( win, 5, 2 );
-    wprintw( win, "Będziesz grał na kolejnych mapach zabijając coraz mocniejsze potwory" );
+    wprintw( win, "na kolejnych mapach zabijając coraz mocniejsze potwory. Skrzynie ze zbrojami," );
     wmove( win, 6, 2 );
-    wprintw( win, "Skrzynie z itemami oraz kluczami do portali są rozstawione po mapie" );
+    wprintw( win, "broniami, potionami oraz kluczami do portali są ustawione na mapach i oznaczone" );
     wmove( win, 7, 2 );
-    wprintw( win, "Pamiętaj żeby zawsze otworzyć wszystkie skrzynie, mogą tam znajdować się" );
+    wprintw( win, "symbolem &. W skrzyniach znajdują się klucze wymagane żeby otworzyć drzwi" );
     wmove( win, 8, 2 );
-    wprintw( win, "potrzebne rzeczy do przejścia dalszych etapów. Nie martw się jak czegoś" );
+    wprintw( win, "oznaczone literą L, do portalu do następnego poziomu. Po prawej stronie razem" );
     wmove( win, 9, 2 );
-    wprintw( win, "zapomnisz zawsze możesz wrócić do poprzednich poziomów" );
-    wmove( win, 11, 2 );
+    wprintw( win, "z informacjami o zbroi itd. jest napisane czy posiadasz klucz do aktualnego" );
+    wmove( win, 10, 2 );
+    wprintw( win, "poziomu. To teraz trochę informacji o głównej postaci. Jesteś kosmicznym klocem" );
+    wmove( win, 12, 2 );
+    wprintw( win, "który leciał po wszechświecie swoim statkiem kosmicznym i rozmawiał przez" );
+    wmove( win, 13, 2 );
+    wprintw( win, "telefon trzymając go przy uchu, niestety wpadł w turbulencje i telefon wypadł" );
+    wmove( win, 14, 2 );
+    wprintw( win, "mu z ręki, gdy go szukał nie zauważył że leci prosto w kosmiczny teleport." );
+    wmove( win, 15, 2 );
+    wprintw( win, "Został przeniesiony na planetę na której jest pełno potworów które chcą go" );
+    wmove( win, 16, 2 );
+    wprintw( win, "zabić, aby wydostać się z niej musi przejść wszystkie poziomy. " );
+    wmove( win, 17, 2 );
+    wprintw( win, "" );
+    wmove( win, 18, 2 );
+    wprintw( win, "Powodzenia!" );
+    wmove( win, 20, 2 );
     wprintw( win, "Aby wrócić do menu kliknij m " );
     wrefresh( win );
     int c;
@@ -178,7 +201,7 @@ void init_windows( Windows windows ) {
     printBorder( windows.twin );
 
     wmove( windows.twin, 1, 2 );
-    wprintw( windows.twin, "Gra ASCII" );
+    wprintw( windows.twin, "Gra ASCII, \"Przygody kloca\". Najpierw przeczytaj pomoc potem graj ;)" );
     wmove( windows.twin, 2, 2 );
     wprintw( windows.twin, "© Kamil Poniatowski 2015" );
 
@@ -244,4 +267,25 @@ int start_new_game( WINDOW *win ) {
     }
 
     return true;
+}
+
+
+void print_ending( WINDOW* win ) {
+    wclear( win );
+    printBorder( win );
+    wmove( win, 1, 1 );
+    wprintw( win, "Gratulacje!" );
+    wmove( win, 2, 1 );
+    wprintw( win, "To już koniec gry. Mam nadzieję że Ci się podobała." );
+    wmove( win, 3, 1 );
+    wprintw( win, "Kloc uciekł z dziwnego świata w którym się zagubił" );
+    wmove( win, 4, 1 );
+    wprintw( win, "i żył długo i szczęśliwie." );
+    wmove( win, 7, 1 );
+    wprintw( win, "Aby wrócić do menu wciśnij m" );
+    wrefresh( win );
+    char c;
+    do {
+        c = getchar();
+    } while( c != 'm' );
 }

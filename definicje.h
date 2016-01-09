@@ -20,6 +20,8 @@
 #define MONSTER         5
 #define BOX             6
 #define TELEPORT        7
+#define DOOR            8
+
 #define GREEN           10
 #define RED             11
 
@@ -29,6 +31,7 @@
 #define PLAYER_CH       '@'
 #define BOX_CH          '&'
 #define TELEPORT_CH     'T'
+#define DOOR_CH         'L'
 
 /* Definicje potrzebne do działania gry */
 

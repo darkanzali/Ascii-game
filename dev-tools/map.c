@@ -16,16 +16,11 @@
 #define MONSTER         5
 #define BOX             6
 #define TELEPORT        7
+#define DOOR            8
 
-#define RAT         1
-#define MENEL       2
-#define GOBLIN      3
-#define CYCLOP      4
-#define WOLF        5
-#define SKELETON    6
-#define TROLL       7
-#define DRAGON      8
-#define ZOMBIE      9
+#define MAX_MONSTER_NAME 10
+
+#define MONSTERSFILE    "monsters.bin"
 
 #pragma pack(push)
 #pragma pack(1)
@@ -43,6 +38,17 @@ typedef struct mon {
     struct mon *next;
 } Monster;
 
+typedef struct { // Potwór
+    char letter; // Literka identyfikująca rodzaj potwora
+    char name[ MAX_MONSTER_NAME ]; // Nazwa potwora
+    int hp; // Życie potwora
+    int atk; // Siła potwora
+    int weapon; // Id broni w ręku potwora
+    int armor; // Id zbroi którą nosi potwór
+    int fieldch; // Znak na polu na którym stoi potwór
+    int exp;
+} Mon;
+
 typedef struct {
     int type;
     int id;
@@ -52,18 +58,37 @@ typedef struct {
 
 #pragma pack(pop)
 
-void add_monster( Monster *wsk, int type, int id, int x, int y ) {
-    while( wsk -> next != NULL )
-        wsk = wsk -> next;
-    Monster *new;
-    new = malloc( sizeof( Monster ) );
-    wsk -> next = new;
+void add_monster( Monster **fmonster, int type, int id, int x, int y ) {
+    Monster *wsk, *new;
+
+    if( *fmonster == NULL ) {
+        ( *fmonster ) = malloc( sizeof( Monster ) );
+        ( *fmonster ) -> next = NULL;
+        new = *fmonster;
+    } else {
+        wsk = *fmonster;
+        while( wsk -> next != NULL )
+            wsk = wsk -> next;
+
+        new = malloc( sizeof( Monster ) );
+        new -> next = NULL;
+        wsk -> next = new;
+    }
 
     new -> type = type;
     new -> id   = id;
     new -> x    = x;
     new -> y    = y;
-    new -> next = NULL;
+}
+
+void load_monsters( Mon **monsters ) {
+    FILE *file;
+    file = fopen( MONSTERSFILE, "rb" );
+    int count;
+    fread( &count, sizeof( int ), 1, file );
+    *monsters = malloc( count * sizeof( Mon ) );
+    fread( *monsters, sizeof( Mon ), count, file );
+    fclose( file );
 }
 
 int main( int argc, char *argv[] ) {
@@ -73,6 +98,17 @@ int main( int argc, char *argv[] ) {
     }
 
     FILE *file;
+    Mon *amonsters;
+
+    file = fopen( MONSTERSFILE, "rb" );
+    load_monsters( &amonsters );
+    int im;
+    for( im = 0; amonsters[ im ].hp != -1; im++ ) {
+        printf( "%c ", amonsters[ im ].letter );
+    }
+    printf( "\n\n");
+    fclose( file );
+
     char *f1;
     f1 = malloc( ( strlen( argv[ 2 ] ) + 3 + 1 ) * sizeof( char ) );
     strcpy( f1, argv[ 2 ] );
@@ -85,9 +121,7 @@ int main( int argc, char *argv[] ) {
     int x, y;
     int monsters;
     Monster *fmonster;
-    fmonster = malloc( sizeof( Monster ) );
-    fmonster -> type = -1;
-    fmonster -> next = NULL;
+    fmonster = NULL;
 
     fwrite( &hei, sizeof( int ), 1, file );
     fwrite( &wid, sizeof( int ), 1, file );
@@ -118,6 +152,10 @@ int main( int argc, char *argv[] ) {
                 xg = x + 1;
                 yg = y + 1;
                 break;
+            case 'L':
+                o.type = DOOR;
+                o.id   = ZERO;
+                break;
             case 'f':
                 o.type = FLOOR;
                 o.id   = ZERO;
@@ -134,18 +172,6 @@ int main( int argc, char *argv[] ) {
                 o.type = BOX;
                 o.id   = ZERO;
                 break;
-            case 'R':
-                o.type = MONSTER;
-                o.id   = RAT;
-                monsters++;
-                if( fmonster -> type == -1 ) {
-                    fmonster -> type = MONSTER;
-                    fmonster -> id = RAT;
-                    fmonster -> x = x;
-                    fmonster -> y = y;
-                } else
-                    add_monster( fmonster, MONSTER, RAT, x, y );
-                break;
             case 'T':
                 o.type = TELEPORT;
                 o.id   = ZERO;
@@ -153,6 +179,15 @@ int main( int argc, char *argv[] ) {
             default:
                 o.type = FLOOR;
                 o.id   = ZERO;
+                for( im = 0; amonsters[ im ].hp != -1; im++ ) {
+                    if( amonsters[ im ].letter == c ) {
+                        o.type = MONSTER;
+                        o.id   = im + 1;
+                        //monsters++;
+                        //add_monster( &fmonster, o.type, o.id, x, y );
+                        break;
+                    }
+                }
                 break;
         }
         printf( "%d", o.type );
@@ -165,26 +200,26 @@ int main( int argc, char *argv[] ) {
     fclose( file );
 
     free( f1 );
-    f1 = malloc( ( strlen( argv[ 2 ] ) + 4 + 1 ) * sizeof( char ) );
-    strcpy( f1, argv[ 2 ] );
-    strcat( f1, "m.bin" );
-    file = fopen( f1, "wb" );
-
-    fwrite( &monsters, sizeof( int ), 1, file ); // Ilość potworów
-
-    Monster *wsk = fmonster;
-    Mons tmonster;
-
-    while( wsk != NULL ) {
-        tmonster.type = wsk -> type;
-        tmonster.id   = wsk -> id;
-        tmonster.x    = wsk -> x;
-        tmonster.y    = wsk -> y;
-        fwrite( &tmonster, sizeof( Mons ), 1, file );
-        wsk = wsk -> next;
-    }
-
-    fclose( file );
+    // f1 = malloc( ( strlen( argv[ 2 ] ) + 4 + 1 ) * sizeof( char ) );
+    // strcpy( f1, argv[ 2 ] );
+    // strcat( f1, "m.bin" );
+    // file = fopen( f1, "wb" );
+    //
+    // fwrite( &monsters, sizeof( int ), 1, file ); // Ilość potworów
+    //
+    // Monster *wsk = fmonster;
+    // Mons tmonster;
+    //
+    // while( wsk != NULL ) {
+    //     tmonster.type = wsk -> type;
+    //     tmonster.id   = wsk -> id;
+    //     tmonster.x    = wsk -> x;
+    //     tmonster.y    = wsk -> y;
+    //     fwrite( &tmonster, sizeof( Mons ), 1, file );
+    //     wsk = wsk -> next;
+    // }
+    //
+    // fclose( file );
     fclose( mapa );
 
     return 0;
