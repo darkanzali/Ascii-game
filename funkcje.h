@@ -9,5 +9,7 @@
 int kbhit(void);
 char *world_to_char( char *dir, int number, char *ext );
 char *l_to_char( int hp, int maxhp );
+int more_random( long max );
+int time_diff( struct timeval start, struct timeval end );
 
 #endif

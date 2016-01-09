@@ -97,3 +97,27 @@ char *l_to_char( int hp, int maxhp ) {
 
 	return text;
 }
+
+
+int more_random( long max ) {
+    unsigned long
+    num_bins = ( unsigned long ) max + 1,
+    num_rand = ( unsigned long ) RAND_MAX + 1,
+    bin_size = num_rand / num_bins,
+    defect   = num_rand % num_bins;
+
+    long x;
+    do {
+        x = random();
+    } while( num_rand - defect <= ( unsigned long ) x );
+
+    return x / bin_size;
+}
+
+int time_diff( struct timeval start, struct timeval end ) {
+    long difference, seconds, useconds;
+    seconds  = end.tv_sec  - start.tv_sec;
+    useconds = end.tv_usec - start.tv_usec;
+    difference = ( ( ( seconds ) * 1000 + useconds / 1000.0 ) + 0.5 );
+    return difference;
+}

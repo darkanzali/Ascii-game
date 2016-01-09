@@ -45,8 +45,8 @@
 
 #define ARMOR 1
 #define WEAPON 2
-#define KEY 3
-#define POTION 4
+#define POTION 3
+#define KEY 4
 
 /* Funkcje do włączania kolorów */
 

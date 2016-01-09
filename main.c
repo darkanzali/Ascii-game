@@ -41,7 +41,7 @@ int main() {
     int hei = 22, wid = 82; // Wysokość i szerokość okienka głównego
     int hei2 = 4, wid2 = wid; // Wysokość i szerokość okienka tekstowego
     int hei3 = 8, wid3 = 12;
-    int hei4 = 10, wid4 = wid3;
+    int hei4 = 11, wid4 = wid3;
     int world; // Aktualny świat
 
     getmaxyx( stdscr, wy, wx ); // Pobranie wysokości i szerokości terminala

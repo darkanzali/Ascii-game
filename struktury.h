@@ -43,11 +43,13 @@ typedef struct { // Potwór
 typedef struct { // Broń
     int atk; // Moc ataku broni
     char name[ MAX_ITEM_NAME ]; // Nazwa broni
+    int weight;
 } Weapon;
 
 typedef struct { // Zbroja
     int def; // Moc absorbowania ataku przez zbroję
     char name[ MAX_ITEM_NAME ]; // Nazwa zbroi
+    int weight;
 } Armor;
 
 typedef struct {

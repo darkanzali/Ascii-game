@@ -23,13 +23,13 @@ void delete_dead_monster( WINDOW *win, Monster_list **pointer, Monster_list **fm
 void clear_list( Monster_list **monster ); // Funkcja czyszcząca listę
 void clear_list_box( Box_list **fbox );
 Monster_list *checkIfMonsterNearPlayer( Player *player, Monster_list *fmonster ); // Funkcja sprawdzająca czy potwór jest obok gracza
-int time_diff( struct timeval start, struct timeval end );
-int more_random( long max );
 void save_game( WINDOW *win, int world, Player player, Monster_list *fmonster, Monster *monsters );
 int load_player( Player *player );
 int load_saved_game( Player *player, Monster *monsters, Monster_list **fmonster, WINDOW *win );
 void check_player_exp( Player *player );
-void print_player_info( WINDOW *win, Player player );
+void print_player_info( WINDOW *win, Player player, Armor *armors, Weapon *weapons );
+void open_box( Player *player, int y, int x, Box_list **fbox, WINDOW *win );
+Box_list *find_box( Box_list **fbox, int y, int x );
 void print_list( Monster_list *fmonster, WINDOW *win ); //DEBUG
 void print_box_list( Box_list *fbox ); // DEBUG
 
