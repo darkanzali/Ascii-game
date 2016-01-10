@@ -7,7 +7,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#define ILE 6
+#define ILE 10
 #define MAX_NAME 10
 
 #pragma pack(push)
@@ -36,24 +36,40 @@ int main() {
     a[ 0 ].weight = 0;
 
     a[ 1 ].def = 1;
-    strcpy( a[ 1 ].name, "Płaszcz" );
+    strcpy( a[ 1 ].name, "Koszula" );
     a[ 1 ].weight = 0;
 
-    a[ 2 ].def = 3;
-    strcpy( a[ 2 ].name, "Skóra" );
+    a[ 2 ].def = 2;
+    strcpy( a[ 2 ].name, "Płaszcz" );
     a[ 2 ].weight = 0;
 
-    a[ 3 ].def = 7;
-    strcpy( a[ 3 ].name, "Kolczuga" );
+    a[ 3 ].def = 4;
+    strcpy( a[ 3 ].name, "Skóra" );
     a[ 3 ].weight = 0;
 
-    a[ 4 ].def = 10;
-    strcpy( a[ 4 ].name, "Płytowa" );
+    a[ 4 ].def = 5;
+    strcpy( a[ 4 ].name, "Pancerz" );
     a[ 4 ].weight = 0;
 
-    a[ 5 ].def = 20;
-    strcpy( a[ 5 ].name, "Platynowa" );
+    a[ 5 ].def = 7;
+    strcpy( a[ 5 ].name, "Kolczuga" );
     a[ 5 ].weight = 0;
+
+    a[ 6 ].def = 8;
+    strcpy( a[ 6 ].name, "Płytowa" );
+    a[ 6 ].weight = 0;
+
+    a[ 7 ].def = 9;
+    strcpy( a[ 7 ].name, "Złota" );
+    a[ 7 ].weight = 0;
+
+    a[ 8 ].def = 11;
+    strcpy( a[ 8 ].name, "Platynowa" );
+    a[ 8 ].weight = 0;
+
+    a[ 9 ].def = 12;
+    strcpy( a[ 9 ].name, "Rycerska" );
+    a[ 9 ].weight = 0;
 
     fwrite( a, sizeof( Armor ), ILE, file );
 

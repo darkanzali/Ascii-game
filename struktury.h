@@ -19,6 +19,7 @@ typedef struct { // Gracz
     int hp; // Życie gracza
     int maxhp; // Maksymalne życie gracza
     int atk; // Siła gracza
+    int def;
     int weapon; // Id broni w ręku gracza
     int armor; // Id zbroi którą nosi gracz
     int fieldch; // Znak na polu na którym stoi gracz

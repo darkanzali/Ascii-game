@@ -7,7 +7,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#define ILE 6
+#define ILE 10
 #define MAX_NAME 10
 
 #pragma pack(push)
@@ -39,21 +39,37 @@ int main() {
     strcpy( w[ 1 ].name, "Kij" );
     w[ 1 ].weight = 0;
 
-    w[ 2 ].atk = 3;
-    strcpy( w[ 2 ].name, "Nóż" );
+    w[ 2 ].atk = 2;
+    strcpy( w[ 2 ].name, "Krótki Nóż" );
     w[ 2 ].weight = 0;
 
-    w[ 3 ].atk = 7;
-    strcpy( w[ 3 ].name, "Szabla" );
+    w[ 3 ].atk = 4;
+    strcpy( w[ 3 ].name, "Siekiera" );
     w[ 3 ].weight = 0;
 
-    w[ 4 ].atk = 10;
-    strcpy( w[ 4 ].name, "Maczeta" );
+    w[ 4 ].atk = 6;
+    strcpy( w[ 4 ].name, "Topór" );
     w[ 4 ].weight = 0;
 
-    w[ 5 ].atk = 20;
-    strcpy( w[ 5 ].name, "Miecz" );
+    w[ 5 ].atk = 8;
+    strcpy( w[ 5 ].name, "Maczuga" );
     w[ 5 ].weight = 0;
+
+    w[ 6 ].atk = 10;
+    strcpy( w[ 6 ].name, "Maczeta" );
+    w[ 6 ].weight = 0;
+
+    w[ 7 ].atk = 12;
+    strcpy( w[ 7 ].name, "Szabla" );
+    w[ 7 ].weight = 0;
+
+    w[ 8 ].atk = 13;
+    strcpy( w[ 8 ].name, "Miecz" );
+    w[ 8 ].weight = 0;
+
+    w[ 9 ].atk = 60;
+    strcpy( w[ 9 ].name, "Halabarda" );
+    w[ 9 ].weight = 0;
 
     fwrite( w, sizeof( Weapon ), ILE, file );
 

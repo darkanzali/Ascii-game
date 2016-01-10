@@ -176,7 +176,7 @@ int playGame( int world, Windows w ) {
                         }
                         if( fieldToGo == DOOR_CH && player.key == world ) {
                             prfch_xy( win, FLOOR_CH, player.y - 1, player.x );
-                            player.key = 0;
+                            player.key--;
                             print_player_info( ewin, player, armors, weapons );
                             fieldToGo = FLOOR_CH;
                         }
@@ -207,7 +207,7 @@ int playGame( int world, Windows w ) {
                         }
                         if( fieldToGo == DOOR_CH && player.key == world ) {
                             prfch_xy( win, FLOOR_CH, player.y + 1, player.x );
-                            player.key = 0;
+                            player.key--;
                             print_player_info( ewin, player, armors, weapons );
                             fieldToGo = FLOOR_CH;
                         }
@@ -238,7 +238,7 @@ int playGame( int world, Windows w ) {
                         }
                         if( fieldToGo == DOOR_CH && player.key == world ) {
                             prfch_xy( win, FLOOR_CH, player.y, player.x + 1 );
-                            player.key = 0;
+                            player.key--;
                             print_player_info( ewin, player, armors, weapons );
                             fieldToGo = FLOOR_CH;
                         }
@@ -269,7 +269,7 @@ int playGame( int world, Windows w ) {
                         }
                         if( fieldToGo == DOOR_CH && player.key == world ) {
                             prfch_xy( win, FLOOR_CH, player.y, player.x - 1 );
-                            player.key = 0;
+                            player.key--;
                             print_player_info( ewin, player, armors, weapons );
                             fieldToGo = FLOOR_CH;
                         }
@@ -910,23 +910,6 @@ void save_game( WINDOW *win, int world, Player player, Monster_list *fmonster, M
     char field;
     Map_field mfield;
 
-    i = 1;
-    j = 1;
-
-    do {
-        field = ( mvwinch( win, i, j + 1 ) & A_CHARTEXT );
-        j++;
-    } while( field != ' ' );
-
-    j--;
-
-    do {
-        field = ( mvwinch( win, i + 1, j ) & A_CHARTEXT );
-        i++;
-    } while( field != ' ' );
-
-    i--;
-
     j = 80;
     i = 20;
 
@@ -1010,7 +993,8 @@ void init_player( Player *player ) {
     player -> hp = 30;
     player -> maxhp = 30;
     player -> fieldch = '.';
-    player -> atk = 2;
+    player -> atk = 3;
+    player -> def = 1;
     player -> weapon = ZERO;
     player -> armor = ZERO;
     player -> lvl = 1;
@@ -1121,11 +1105,63 @@ int load_saved_game( Player *player, Monster *monsters, Monster_list **fmonster,
 
 void check_player_exp( Player *player ) {
     /*
-    4xp - lvl2
+    exp
+    13 - lvl2
+    30 - lvl3
+    38 - lvl4
+    60 - lvl5
+    70 - lvl6
+    81 - lvl7
+    93 - lvl8
+    112 - lvl9
     */
-    if( player -> lvl < 2 && player -> exp >= 4 ) {
+    if( player -> lvl < 2 && player -> exp >= 13 ) {
         player -> lvl = 2;
-        player -> atk = 4;
+        player -> maxhp = 45;
+        player -> atk = 6;
+        player -> def = 2;
+    }
+    if( player -> lvl < 3 && player -> exp >= 30 ) {
+        player -> lvl = 3;
+        player -> maxhp = 60;
+        player -> atk = 8;
+        player -> def = 3;
+    }
+    if( player -> lvl < 4 && player -> exp >= 38 ) {
+        player -> lvl = 4;
+        player -> maxhp = 75;
+        player -> atk = 11;
+        player -> def = 4;
+    }
+    if( player -> lvl < 5 && player -> exp >= 60 ) {
+        player -> lvl = 5;
+        player -> maxhp = 90;
+        player -> atk = 14;
+        player -> def = 5;
+    }
+    if( player -> lvl < 6 && player -> exp >= 70 ) {
+        player -> lvl = 6;
+        player -> maxhp = 105;
+        player -> atk = 17;
+        player -> def = 6;
+    }
+    if( player -> lvl < 7 && player -> exp >= 81 ) {
+        player -> lvl = 7;
+        player -> maxhp = 120;
+        player -> atk = 20;
+        player -> def = 7;
+    }
+    if( player -> lvl < 8 && player -> exp >= 93 ) {
+        player -> lvl = 8;
+        player -> maxhp = 135;
+        player -> atk = 23;
+        player -> def = 8;
+    }
+    if( player -> lvl < 9 && player -> exp >= 112 ) {
+        player -> lvl = 9;
+        player -> maxhp = 250;
+        player -> atk = 80;
+        player -> def = 60;
     }
 }
 
@@ -1185,7 +1221,7 @@ void print_player_info( WINDOW *win, Player player, Armor *armors, Weapon *weapo
     wprintw( win, "          " );
     wmove( win, 9, 1 );
     won( win, GREEN );
-    wprintw( win, "Klucz:" );
+    wprintw( win, "Klucze:" );
     woff( win, GREEN );
     wprintw( win, " %d", player.key );
 
@@ -1213,7 +1249,7 @@ void open_box( Player *player, int y, int x, Box_list **fbox, WINDOW *win ) {
                     player -> hp = player -> maxhp;
                 break;
             case KEY:
-                player -> key = fitem -> id;
+                player -> key++;
                 break;
         }
         free( fitem );

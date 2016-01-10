@@ -103,10 +103,6 @@ int main( int argc, char *argv[] ) {
     file = fopen( MONSTERSFILE, "rb" );
     load_monsters( &amonsters );
     int im;
-    for( im = 0; amonsters[ im ].hp != -1; im++ ) {
-        printf( "%c ", amonsters[ im ].letter );
-    }
-    printf( "\n\n");
     fclose( file );
 
     char *f1;
@@ -142,11 +138,11 @@ int main( int argc, char *argv[] ) {
         }
         getc( mapa );
         switch( c ) {
-            case 'w':
+            case '#':
                 o.type = WALL;
                 o.id   = ZERO;
                 break;
-            case 'G':
+            case '@':
                 o.type = PLAYER;
                 o.id   = ZERO;
                 xg = x + 1;
@@ -164,15 +160,12 @@ int main( int argc, char *argv[] ) {
                 o.type = STOP_MONSTER;
                 o.id   = ZERO;
                 break;
-            case 'm':
-                o.type = STOP_MONSTER;
-                o.id   = ZERO;
-                break;
-            case 'Q':
+            case '&':
                 o.type = BOX;
                 o.id   = ZERO;
+                printf( "Box - x: %d, y: %d\n", x % wid, y );
                 break;
-            case 'T':
+            case '*':
                 o.type = TELEPORT;
                 o.id   = ZERO;
                 break;
@@ -183,15 +176,14 @@ int main( int argc, char *argv[] ) {
                     if( amonsters[ im ].letter == c ) {
                         o.type = MONSTER;
                         o.id   = im + 1;
-                        //monsters++;
                         //add_monster( &fmonster, o.type, o.id, x, y );
                         break;
                     }
                 }
                 break;
         }
-        printf( "%d", o.type );
-        if( x % wid == 0 ) printf( "\n" );
+        //printf( "%d", o.type );
+        //if( x % wid == 0 ) printf( "\n" );
         fwrite( &o, sizeof( Obj ), 1, file );
         x++;
     }
