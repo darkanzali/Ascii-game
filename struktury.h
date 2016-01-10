@@ -82,6 +82,7 @@ typedef struct {
     WINDOW *twin;
     WINDOW *rwin;
     WINDOW *ewin;
+    WINDOW *dwin;
 } Windows;
 
 typedef struct _blist {

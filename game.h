@@ -29,10 +29,10 @@ void init_player( Player *player );
 int load_saved_game( Player *player, Monster *monsters, Monster_list **fmonster, WINDOW *win );
 void check_player_exp( Player *player );
 void print_player_info( WINDOW *win, Player player, Armor *armors, Weapon *weapons );
-void open_box( Player *player, int y, int x, Box_list **fbox, WINDOW *win );
+void open_box( Player *player, int y, int x, Box_list **fbox, WINDOW *win, int world );
 Box_list *find_box( Box_list **fbox, int y, int x );
 void load_maxworlds( int *max_worlds );
 void print_list( Monster_list *fmonster, WINDOW *win ); //DEBUG
-void print_box_list( Box_list *fbox ); // DEBUG
+void print_box_list( Box_list *fbox, WINDOW *win ); // DEBUG
 
 #endif

@@ -30,7 +30,7 @@
 #define STOP_MONSTER_CH '\"'
 #define PLAYER_CH       '@'
 #define BOX_CH          '&'
-#define TELEPORT_CH     'T'
+#define TELEPORT_CH     '*'
 #define DOOR_CH         'L'
 
 /* Definicje potrzebne do działania gry */

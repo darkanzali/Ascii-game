@@ -43,6 +43,7 @@ int main() {
     int hei2 = 4, wid2 = wid; // Wysokość i szerokość okienka tekstowego
     int hei3 = 8, wid3 = 12;
     int hei4 = 11, wid4 = wid3;
+    int hei5 = 3, wid5 = wid3;
     int world; // Aktualny świat
 
     getmaxyx( stdscr, wy, wx ); // Pobranie wysokości i szerokości terminala
@@ -68,6 +69,7 @@ int main() {
     WINDOW *twin;
     WINDOW *rwin;
     WINDOW *ewin;
+    WINDOW *dwin;
 
     starty = ( ( wy - hei ) / 2 ) - 2;
     startx = ( ( wx - wid ) / 2 ) - 12;
@@ -79,12 +81,14 @@ int main() {
     twin = newwin( hei2, wid2, starty2, startx2 );
     rwin = newwin( hei3, wid3, starty3, startx3 );
     ewin = newwin( hei4, wid4, starty3 + hei3, startx3 );
+    dwin = newwin( hei5, wid5, starty3 + hei3 + hei4, startx3 );
 
     Windows windows;
     windows.mwin = mwin;
     windows.twin = twin;
     windows.rwin = rwin;
     windows.ewin = ewin;
+    windows.dwin = dwin;
 
     /************************/
     /* Deklaracje zmiennych */
@@ -101,9 +105,6 @@ int main() {
         switch( menu( mwin ) ) {    // 1 Nowa gra // 2 Wczytaj grę
             case 1:                 // 3 Pomoc // 4 Wyjście
                 world = 1;
-                wclear( twin );
-                printBorder( twin );
-                wrefresh( twin );
                 if( !start_new_game( twin ) )
                     break;
                 do {
@@ -116,9 +117,6 @@ int main() {
                 break;
             case 2:
                 world = -1;
-                wclear( twin );
-                printBorder( twin );
-                wrefresh( twin );
                 do {
                     world = playGame( world, windows );
                 } while( world != -1 && world != -2 );
@@ -197,6 +195,7 @@ void init_windows( Windows windows ) {
     wclear( windows.twin );
     wclear( windows.rwin );
     wclear( windows.ewin );
+    wclear( windows.dwin );
     printBorder( windows.mwin );
     printBorder( windows.twin );
 
@@ -209,6 +208,7 @@ void init_windows( Windows windows ) {
     wrefresh( windows.twin );
     wrefresh( windows.rwin );
     wrefresh( windows.ewin );
+    wrefresh( windows.dwin );
 }
 
 int start_new_game( WINDOW *win ) {

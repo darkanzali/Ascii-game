@@ -116,8 +116,6 @@ int main( int argc, char *argv[] ) {
     int xg, yg;
     int x, y;
     int monsters;
-    Monster *fmonster;
-    fmonster = NULL;
 
     fwrite( &hei, sizeof( int ), 1, file );
     fwrite( &wid, sizeof( int ), 1, file );
@@ -130,6 +128,7 @@ int main( int argc, char *argv[] ) {
 
     char c;
     Obj o;
+    int skrzynie = 0;
 
     while( ( c = fgetc( mapa ) ) != EOF ) {
         if( c == '\n' ) {
@@ -163,7 +162,8 @@ int main( int argc, char *argv[] ) {
             case '&':
                 o.type = BOX;
                 o.id   = ZERO;
-                printf( "Box - x: %d, y: %d\n", x % wid, y );
+                skrzynie++;
+                printf( "Box %d - y: %d, x: %d\n", skrzynie, y, x % wid );
                 break;
             case '*':
                 o.type = TELEPORT;
@@ -176,14 +176,11 @@ int main( int argc, char *argv[] ) {
                     if( amonsters[ im ].letter == c ) {
                         o.type = MONSTER;
                         o.id   = im + 1;
-                        //add_monster( &fmonster, o.type, o.id, x, y );
                         break;
                     }
                 }
                 break;
         }
-        //printf( "%d", o.type );
-        //if( x % wid == 0 ) printf( "\n" );
         fwrite( &o, sizeof( Obj ), 1, file );
         x++;
     }
@@ -192,26 +189,6 @@ int main( int argc, char *argv[] ) {
     fclose( file );
 
     free( f1 );
-    // f1 = malloc( ( strlen( argv[ 2 ] ) + 4 + 1 ) * sizeof( char ) );
-    // strcpy( f1, argv[ 2 ] );
-    // strcat( f1, "m.bin" );
-    // file = fopen( f1, "wb" );
-    //
-    // fwrite( &monsters, sizeof( int ), 1, file ); // Ilość potworów
-    //
-    // Monster *wsk = fmonster;
-    // Mons tmonster;
-    //
-    // while( wsk != NULL ) {
-    //     tmonster.type = wsk -> type;
-    //     tmonster.id   = wsk -> id;
-    //     tmonster.x    = wsk -> x;
-    //     tmonster.y    = wsk -> y;
-    //     fwrite( &tmonster, sizeof( Mons ), 1, file );
-    //     wsk = wsk -> next;
-    // }
-    //
-    // fclose( file );
     fclose( mapa );
 
     return 0;

@@ -98,6 +98,41 @@ char *l_to_char( int hp, int maxhp ) {
 	return text;
 }
 
+char *box_name( char *dir, int world, int y, int x, char *ext ) {
+	char xc[ 3 ] = { 0, 0, 0 };
+	char yc[ 3 ] = { 0, 0, 0 };
+	char dir2[ 5 ] = { 0, '/', 0, 0, 0 };
+
+	if( world > 9 ) {
+        dir2[ 1 ] = ( y % 10 ) + '0';
+		dir2[ 2 ] = '/';
+        world /= 10;
+    }
+    dir2[ 0 ] = world + '0';
+
+    if( y > 9 ) {
+        yc[ 1 ] = ( y % 10 ) + '0';
+        y /= 10;
+    }
+    yc[ 0 ] = y + '0';
+
+	if( x > 9 ) {
+        xc[ 1 ] = ( x % 10 ) + '0';
+        x /= 10;
+    }
+    xc[ 0 ] = x + '0';
+
+    char *file;
+	file = malloc( 50 * sizeof( char ) );
+
+    strcpy( file, dir );
+    strcat( file, dir2 );
+    strcat( file, yc );
+    strcat( file, xc );
+    strcat( file, ext );
+
+	return file;
+}
 
 int more_random( long max ) {
     unsigned long
