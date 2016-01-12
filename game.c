@@ -16,6 +16,7 @@
 #include "game.h"
 #include "okna.h"
 #include "funkcje.h"
+#include "colors.h"
 
 int playGame( int world, Windows w ) {
     WINDOW *win = w.mwin;
@@ -29,41 +30,37 @@ int playGame( int world, Windows w ) {
     wclear( twin );
     wrefresh( twin );
 
-    Player player; // Zmienna przechowująca dane o graczu
+    Player player;
     player.x = 1;
     player.y = 1;
-    Monster *monsters; // Wskaźnik na tablicę w której będą zapisane wszystkie potwory
-    Monster_list *fmonster_on_map, *pointer; // Wskaźnik na pierwszy element listy potworów na mapie
+    Monster *monsters;
+    Monster_list *fmonster_on_map, *pointer;
     Weapon *weapons;
     Armor *armors;
     Box_list *fbox = NULL;
-    fmonster_on_map = NULL; // Ustawiamy wskaźnik na nic
-    pointer = NULL; // Ustawiamy wskaźnik na nic
-    bool goMenu = false; // Zmienna przechowująca dane czy chcemy wyjść do menu i ustawiamy że nie chcemy
+    fmonster_on_map = NULL;
+    pointer = NULL;
+    bool goMenu = false;
     bool pAtak = false;
     struct timeval mStartMove, mStartAtk, pStartAtk, pStartReg, EndTime;
-    /* czas od ostatniego ruchu potworów, czas od ostatniego ataku potwora, czas od ostatniego ataku gracza */
-    /* czas od ostatniej regeneracji życia gracza, obecny czas */
     unsigned long long seconds, useconds, breakTime;
-    /* wyliczone sekundy, wyliczone mikrosekundy, czas przerwy */
-    int mlife = 0; //DEBUG
-    int atkStren; // Zmienna na siłę ataku
-    int c; // Zmienna na wczytany znak z klawiatury
+    int atkStren;
+    int c;
     int nworld = -1;
     int max_worlds;
 
-    wclear( win ); // Czyścimy główne okno
-    printBorder( win ); // Wypisujemy ramkę głównego okna
-    init_colors(); // Inicjalizujemy kolory
-    load_monsters( &monsters ); // Wczytujemy potwory z pliku z potworami
+    wclear( win );
+    printBorder( win );
+    init_colors();
+    load_monsters( &monsters );
     load_armors( &armors );
     load_weapons( &weapons );
     load_maxworlds( &max_worlds );
-    wmove( twin, 1, 1 ); // Przemieszczamy karetkę w lewy górny róg ekranu
+    wmove( twin, 1, 1 );
     if( world != -1 ) {
         if( world == 1 );
             init_player( &player );
-        print_map( world, &player, monsters, &fmonster_on_map, &fbox, win, twin ); // Wypisujemy mapę
+        print_map( world, &player, monsters, &fmonster_on_map, &fbox, win, twin );
     } else {
         int load = load_saved_game( &player, monsters, &fmonster_on_map, win );
         if( load == -1 ) {
@@ -73,12 +70,12 @@ int playGame( int world, Windows w ) {
             world = player.place;
     }
     load_player( &player );
-    wrefresh( win ); // Odświeżamy okno z mapą żeby się wyświetliła
-    gettimeofday( &mStartMove, NULL ); // Wczytujemy na początek czasy
-    gettimeofday( &mStartAtk, NULL );  // potrzebne do wyliczania
-    gettimeofday( &pStartAtk, NULL );  // w grze czy mają nastąpić
-    gettimeofday( &pStartReg, NULL );  // odpowiednie wydarzenia
-    srand( time( NULL ) ); // Inicjalizujemy generator liczb pseudolosowych
+    wrefresh( win );
+    gettimeofday( &mStartMove, NULL );
+    gettimeofday( &mStartAtk, NULL );
+    gettimeofday( &pStartAtk, NULL );
+    gettimeofday( &pStartReg, NULL );
+    srand( time( NULL ) );
 
     if( !goMenu ) {
         prlife( rwin, player, NULL );
@@ -90,24 +87,21 @@ int playGame( int world, Windows w ) {
     load_saved_game( &player, monsters, &fmonster_on_map, win );
     while( !goMenu ) {
         beginning:
-        gettimeofday( &EndTime, NULL ); // Na sam początek pobieramy aktualny czas
+        gettimeofday( &EndTime, NULL );
 
-        // Sprawdzamy czy gracz jest w trakcie walki
-        player.attacking = checkIfMonsterNearPlayer( &player, fmonster_on_map ); // Wczytujemy wskaźnik na potwora ktory stoi obok gracza
+        player.attacking = checkIfMonsterNearPlayer( &player, fmonster_on_map );
 
         if( player.war == false && player.attacking != NULL )
             gettimeofday( &mStartAtk, NULL );
 
-        if( player.attacking != NULL ) // Jeżeli wskaźnik nie jest pusty to gracz jest w trakcie walki
-            player.war = true; // Ustawiamy status gracza na "w trakcie walki"
+        if( player.attacking != NULL )
+            player.war = true;
         else
-            player.war = false; // Jeżeli wskaźnik jest pusty to gracz z nikim nie walczy
-        // Kończymy sprawdzanie czy gracz jest w trakcie walki
+            player.war = false;
 
-        // Sprawdzamy czy jakiś znak czeka na wczytanie
         if( kbhit() ) {
-            c = getch(); // Wczytujemy ten znak
-            switch( c ) { // Sprawdzamy co gracz chciał zrobić
+            c = getch();
+            switch( c ) {
                 case 's':
                     save_game( win, world, player, fmonster_on_map, monsters );
                     break;
@@ -117,23 +111,23 @@ int playGame( int world, Windows w ) {
                 case 'p':
                     getchar();
                     break;
-                case 'a': // Atakujemy
-                    breakTime = time_diff( pStartAtk, EndTime ); // Liczymy ile czasu minęło od ostatniego ataku
-                    if( breakTime > 400 ) { // Jeżeli od ostatniej walki minęło 0,4 sekundy to możemy atakować
+                case 'a':
+                    breakTime = time_diff( pStartAtk, EndTime );
+                    if( breakTime > 400 ) {
                         wmove( dwin, 1, 1 );
                         wprintw( dwin, "Atakujemy " );
                         wrefresh( dwin );
 
-                        if( player.attacking != NULL ) {    // Upewniamy się czy obok gracza stoi potwór
-                            atkStren = 0;                   // Zerujemy siłę ataku
-                            atkStren = more_random( player.atk ); // Losujemy bonus do ataku z przedziału <0;siła_gracza>
+                        if( player.attacking != NULL ) {
+                            atkStren = 0;
+                            atkStren = more_random( player.atk );
                             atkStren += more_random( weapons[ player.weapon ].atk );
-                            atkStren += player.atk;         // Do siły ataku dodajemy siłę gracza
-                            player.attacking -> hp = player.attacking -> hp - atkStren; // Pomniejszamy życie potwora o zadany cios
+                            atkStren += player.atk;
+                            player.attacking -> hp = player.attacking -> hp - atkStren;
                             if( player.attacking -> hp < 0 )
-                                player.attacking -> hp = 0; // Dla uniknięcia problemów jeżeli życie potwora jest mniejsze od zera to je zerujemy
+                                player.attacking -> hp = 0;
 
-                            gettimeofday( &pStartAtk, NULL ); // Ustalamy czas ostatniego ataku
+                            gettimeofday( &pStartAtk, NULL );
                             if( player.attacking -> hp == 0 ) {
                                 player.exp += player.attacking -> exp;
                                 check_player_exp( &player );
@@ -143,16 +137,13 @@ int playGame( int world, Windows w ) {
                                 player.attacking = NULL;
                             }
                         }
-
-                        if( player.attacking == NULL || player.attacking -> hp == 0 )
-                            mlife = 0;
-                    } else { // Jak nie minęło 0,4 sekundy to musimy odpocząć
+                    } else {
                         wmove( dwin, 1, 1 );
                         wprintw( dwin, "Odpocznij " );
                         wrefresh( dwin );
-                    } // Koniec atakowania lub odpoczynku
+                    }
                     break;
-                case 'q': // Wychodzimy
+                case 'q':
                     if( true ) {
                         printBorder( twin );
                         wmove( twin, 1, 1 );
@@ -167,9 +158,9 @@ int playGame( int world, Windows w ) {
                             goMenu = false;
                         wclear( twin );
                         wrefresh( twin );
-                    } // Kończymy wychodzić
+                    }
                     break;
-                case KEY_UP: // Up
+                case KEY_UP:
                     if( true ) {
                         char fieldToGo = ( mvwinch( win, player.y - 1, player.x ) & A_CHARTEXT );
                         if( fieldToGo == BOX_CH ) {
@@ -200,7 +191,7 @@ int playGame( int world, Windows w ) {
                         }
                     }
                     break;
-                case KEY_DOWN: // Down
+                case KEY_DOWN:
                     if( true ) {
                         char fieldToGo = ( mvwinch( win, player.y + 1, player.x ) & A_CHARTEXT );
                         if( fieldToGo == BOX_CH ) {
@@ -231,7 +222,7 @@ int playGame( int world, Windows w ) {
                         }
                     }
                     break;
-                case KEY_RIGHT: // Right
+                case KEY_RIGHT:
                     if( true ) {
                         char fieldToGo = ( mvwinch( win, player.y, player.x + 1 ) & A_CHARTEXT );
                         if( fieldToGo == BOX_CH ) {
@@ -262,7 +253,7 @@ int playGame( int world, Windows w ) {
                         }
                     }
                     break;
-                case KEY_LEFT: // Left
+                case KEY_LEFT:
                     if( true ) {
                         char fieldToGo = ( mvwinch( win, player.y, player.x - 1 ) & A_CHARTEXT );
                         if( fieldToGo == BOX_CH ) {
@@ -296,41 +287,36 @@ int playGame( int world, Windows w ) {
                 default:
                     break;
             }
-        } // kbhit
+        }
 
-        // Jeszcze raz sprawdzamy czy gracz jest w trakcie walki
-        player.attacking = checkIfMonsterNearPlayer( &player, fmonster_on_map ); // Wczytujemy wskaźnik na potwora ktory stoi obok gracza
-        if( player.attacking != NULL ) { // Jeżeli wskaźnik nie jest pusty to gracz jest w trakcie walki
-            player.war = 1; // Ustawiamy status gracza na "w trakcie walki"
+        player.attacking = checkIfMonsterNearPlayer( &player, fmonster_on_map );
+        if( player.attacking != NULL ) {
+            player.war = 1;
             gettimeofday( &pStartReg, NULL );
         } else
-            player.war = 0; // Jeżeli wskaźnik jest pusty to gracz z nikim nie walczy
-        // Kończymy sprawdzanie czy gracz jest w trakcie walki
+            player.war = 0;
 
-        // Jeżeli gracz nie jest w trakcie walki i ma poniżej połowy życia to regenerujemy życie
         if( ( player.war == 0 ) && ( player.hp < player.maxhp ) ) {
-            breakTime = time_diff( pStartReg, EndTime ); // Liczymy ile czasu zostało od ostatniej regeneracji
-            if( breakTime > 500 ) { // Jeżeli od ostatniej regeneracji minęło 0.5 sekundy to regenerujemy
+            breakTime = time_diff( pStartReg, EndTime );
+            if( breakTime > 500 ) {
                 if( player.hp < player.maxhp / 2 ) {
                     player.hp++;
                     if( player.hp > player.maxhp / 2 ) player.hp = player.maxhp / 2;
                     gettimeofday( &pStartReg, NULL );
                 } else {
-                    if( more_random( 1 ) == 1 ) // Gracz ma 50% szans na to że zregeneruje mu się życie w tej sekundzie
+                    if( more_random( 1 ) == 1 )
                     player.hp++;
                     if( player.hp > player.maxhp ) player.hp = player.maxhp;
                     gettimeofday( &pStartReg, NULL );
                 }
             }
         }
-        // Kończymy regenerowanie życia
 
-        // Jeżeli gracz jest w trakcie walki to szukamy potwora z którym walczy
         if( player.war == true ) {
-            if( player.attacking != NULL ) { // Upewniamy się że znaleźliśmy potwora
-                player.attacking -> war = true; // Ustawiamy status potwora na walczącego
-                breakTime = time_diff( mStartAtk, EndTime ); // Liczymy ile czasu minęło od ostatniego ataku potwora
-                if( breakTime > 700 ) { // Potwór atakuje.
+            if( player.attacking != NULL ) {
+                player.attacking -> war = true;
+                breakTime = time_diff( mStartAtk, EndTime );
+                if( breakTime > 700 ) {
                     int atkStren;
                     atkStren = more_random( player.attacking -> atk );
                     atkStren -= more_random( armors[ player.armor ].def );
@@ -366,14 +352,12 @@ int playGame( int world, Windows w ) {
                         }
                     }
                     gettimeofday( &mStartAtk, NULL );
-                } // Potwór kończy atakować
-                mlife = player.attacking -> hp; //DEBUG
+                }
             }
         }
-        // Kończymy walkę potwora z graczem
 
-        breakTime = time_diff( mStartMove, EndTime ); // Liczymy czas od ostatniego ruchu potwora
-        if( breakTime >= 1000 ) { // Jeżeli minęła sekunda potwory się ruszają
+        breakTime = time_diff( mStartMove, EndTime );
+        if( breakTime >= 1000 ) {
             pointer = fmonster_on_map;
             while( pointer != NULL ) {
                 if( pointer -> war == 0 ) {
@@ -432,23 +416,18 @@ int playGame( int world, Windows w ) {
                 pointer = pointer -> next;
             }
             gettimeofday( &mStartMove, NULL );
-        } // Potwory kończą się ruszać
+        }
         prlife( rwin, player, player.attacking );
         wrefresh( win );
         wrefresh( twin );
-        usleep( 500 ); // zatrzymujemy grę na 50 milisekund żeby nie obciążać procesora
+        usleep( 500 );
     }
     if( player.hp != 0 )
         save_game( win, world, player, fmonster_on_map, monsters );
-    free( monsters ); // Jak wychodzimy do menu to uwalniamy pamięć zajętą przez tablicę z potworami
+    free( monsters );
     free( weapons );
     free( armors );
-    while( fmonster_on_map != NULL ) {
-        clear_list( &fmonster_on_map );
-    }
-    while( fbox != NULL ) {
-        clear_list_box( &fbox );
-    }
+    clear_list( &fmonster_on_map );
 
     return nworld;
 }
@@ -527,25 +506,6 @@ void print_map( int map, Player *player, Monster *monsters, Monster_list **fmons
     fclose( file );
 }
 
-void add_to_item_list( Item_list **fitem, Item item ) {
-    Item_list *wsk, *new;
-    if( *fitem == NULL ) {
-        *fitem = malloc( sizeof( Item_list ) );
-        new = *fitem;
-        new -> next = NULL;
-    } else {
-        wsk = *fitem;
-        while( wsk -> next != NULL )
-            wsk = wsk -> next;
-        new = malloc( sizeof( Item_list ) );
-        wsk -> next = new;
-        new -> next = NULL;
-    }
-
-    new -> type = item.type;
-    new -> id   = item.id;
-}
-
 void add_box_to_list( Box_list **fbox, int y, int x, Item_list *fitem ) {
     Box_list *wsk, *new;
     if( *fbox == NULL ) {
@@ -619,8 +579,6 @@ void prlife( WINDOW *win, Player player, Monster_list *monster ) {
 
     free( life );
 
-    //5 1
-    // Życie potwora
     wmove( win, 5, 1 );
     wprintw( win, "          " );
     wmove( win, 6, 1 );
@@ -720,7 +678,7 @@ void add_monster( Monster *monsters, Monster_list **fmonster, int id, int uniId,
     new -> atk      = monsters[ id ].atk;
 }
 
-void add_monster_saved( Monster_list mToAdd, Monster_list **fmonster, int uniId ) { // Funkcja dodająca potwora wczytanego z zapisu
+void add_monster_saved( Monster_list mToAdd, Monster_list **fmonster, int uniId ) {
     Monster_list *wsk, *new;
 
     if( *fmonster == NULL ) {
@@ -792,23 +750,6 @@ void clear_list( Monster_list **monster ) {
     }
 }
 
-void clear_list_box( Box_list **fbox ) {
-    Box_list *Next;
-    Item_list *Fitem, *NextItem;
-    while( *fbox != NULL ) {
-        Fitem = ( *fbox ) -> fitem;
-        while( Fitem != NULL ) {
-            NextItem = Fitem -> next;
-            free( Fitem );
-            Fitem = NextItem;
-        }
-
-        Next = ( *fbox ) -> next;
-        free( *fbox );
-        *fbox = Next;
-    }
-}
-
 Monster_list *checkIfMonsterNearPlayer( Player *player, Monster_list *fmonster ) {
     Monster_list *wsk;
     wsk = fmonster;
@@ -830,29 +771,8 @@ Monster_list *checkIfMonsterNearPlayer( Player *player, Monster_list *fmonster )
     return NULL;
 }
 
-Monster_list *checkIfPlayerNearMonster( Player *player, Monster_list *fmonster ) {
-    Monster_list *wsk;
-    wsk = fmonster;
-    int px = player -> x;
-    int py = player -> y;
-    int mx, my;
-    int odlx, odly;
-    while( wsk != NULL ) {
-        mx = wsk -> x;
-        my = wsk -> y;
-        odlx = abs( px - mx );
-        odly = abs( py - my );
-        if( odlx + odly == 1 )
-            return wsk;
-
-        wsk -> war = 0;
-        wsk = wsk -> next;
-    }
-    return NULL;
-}
-
 void save_game( WINDOW *win, int world, Player player, Monster_list *fmonster, Monster *monsters ) {
-    if( access( "save/player.bin", F_OK ) != -1 ) { // Usuwanie pliku zapisu stanu gracza jeśli istnieje
+    if( access( "save/player.bin", F_OK ) != -1 ) {
         if( remove( "save/player.bin" ) != 0 ) {
             printf( "Error saving game (P). Exiting." );
             exit( 1 );
@@ -864,14 +784,14 @@ void save_game( WINDOW *win, int world, Player player, Monster_list *fmonster, M
     map = world_to_char( "save/", world, ".bin" );
     mons = world_to_char( "save/", world, "m.bin" );
 
-    if( access( map, F_OK ) != -1 ) { // Usuwanie pliku zapisu mapy jeśli istnieje
+    if( access( map, F_OK ) != -1 ) {
         if( remove( map ) != 0 ) {
             printf( "Error saving game (M). Exiting." );
             exit( 1 );
         }
     }
 
-    if( access( mons, F_OK ) != -1 ) { // Usuwanie pliku zapisu listy potworów jeśli istnieje
+    if( access( mons, F_OK ) != -1 ) {
         if( remove( mons ) != 0 ) {
             printf( "Error saving game (Mm). Exiting." );
             exit( 1 );
@@ -931,7 +851,7 @@ void save_game( WINDOW *win, int world, Player player, Monster_list *fmonster, M
                     mfield.type = BOX;
                     mfield.id   = ZERO;
                     break;
-                default: // Jak nierozpoznane to szukamy czy to nie potwór
+                default:
                     if( true ) {
                         int im;
                         for( im = 0; monsters[ im ].hp != -1; im++ ) {
@@ -1289,14 +1209,6 @@ void open_box( Player *player, int y, int x, Box_list **fbox, WINDOW *win, int w
     fclose( box );
 }
 
-Box_list *find_box( Box_list **fbox, int y, int x ) {
-    Box_list *wsk = NULL;
-    wsk = *fbox;
-    while( ( wsk -> y != y && wsk -> x != x ) || wsk == NULL )
-        wsk = wsk -> next;
-
-    return wsk;
-}
 
 
 void load_maxworlds( int *max_worlds ) {
@@ -1307,35 +1219,4 @@ void load_maxworlds( int *max_worlds ) {
     while ( ( c = fgetc( file ) ) != EOF )
         number[ i++ ] = (char) c;
     *max_worlds = atoi( number );
-}
-
-void print_list( Monster_list *fmonster, WINDOW *win ) {
-    Monster_list *wsk;
-    wsk = fmonster;
-    wclear( win );
-    if(wsk == NULL ) wprintw( win, "pusty" );
-    while( wsk != NULL ) {
-        wprintw( win, "%p %p %p\n", wsk->prev, wsk, wsk -> next );
-        wsk = wsk -> next;
-    }
-    wrefresh( win );
-}
-
-void print_box_list( Box_list *fbox, WINDOW *win ) {
-    Box_list *wsk;
-    Item_list *iwsk;
-    wsk = fbox;
-    wmove( win, 0, 0 );
-    wprintw( win, "start\n");
-    while( wsk != NULL ) {
-        iwsk = wsk -> fitem;
-        wprintw( win, "Box x:%d y:%d|\n", wsk -> x, wsk -> y );
-        while( iwsk != NULL ) {
-            wprintw( win, "Item type: %d id: %d|\n", iwsk -> type, iwsk -> id );
-            iwsk = iwsk -> next;
-        }
-        wsk = wsk -> next;
-    }
-    wprintw( win, "end\n");
-    wrefresh( win );
 }

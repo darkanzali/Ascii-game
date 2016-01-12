@@ -11,45 +11,45 @@
 #pragma pack(push)
 #pragma pack(1)
 
-typedef struct { // Gracz
-    int place; // Nazwa miejsca w którym znajduje się gracz
-    int color; // Kolor kratki z graczem
-    int x; // Pozycja x'owa gracza
-    int y; // Pozycja y'owa gracza
-    int hp; // Życie gracza
-    int maxhp; // Maksymalne życie gracza
-    int atk; // Siła gracza
+typedef struct {
+    int place;
+    int color;
+    int x;
+    int y;
+    int hp;
+    int maxhp;
+    int atk;
     int def;
-    int weapon; // Id broni w ręku gracza
-    int armor; // Id zbroi którą nosi gracz
-    int fieldch; // Znak na polu na którym stoi gracz
-    int war; // Czy gracz walczy z potworem
+    int weapon;
+    int armor;
+    int fieldch;
+    int war;
     int exp;
     int lvl;
     int key;
-    struct _mlist *attacking; // Wskaźnik na potwora z którym walczymy
+    struct _mlist *attacking;
 } Player;
 
-typedef struct { // Potwór
-    char letter; // Literka identyfikująca rodzaj potwora
-    char name[ MAX_MONSTER_NAME ]; // Nazwa potwora
-    int hp; // Życie potwora
-    int atk; // Siła potwora
-    int weapon; // Id broni w ręku potwora
-    int armor; // Id zbroi którą nosi potwór
-    int fieldch; // Znak na polu na którym stoi potwór
+typedef struct {
+    char letter;
+    char name[ MAX_MONSTER_NAME ];
+    int hp;
+    int atk;
+    int weapon;
+    int armor;
+    int fieldch;
     int exp;
 } Monster;
 
-typedef struct { // Broń
-    int atk; // Moc ataku broni
-    char name[ MAX_ITEM_NAME ]; // Nazwa broni
+typedef struct {
+    int atk;
+    char name[ MAX_ITEM_NAME ];
     int weight;
 } Weapon;
 
-typedef struct { // Zbroja
-    int def; // Moc absorbowania ataku przez zbroję
-    char name[ MAX_ITEM_NAME ]; // Nazwa zbroi
+typedef struct {
+    int def;
+    char name[ MAX_ITEM_NAME ];
     int weight;
 } Armor;
 

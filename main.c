@@ -22,31 +22,32 @@
 void info_help( WINDOW *win );
 void init_windows( Windows windows );
 void print_ending( WINDOW *win );
+int start_new_game( WINDOW *win );
 int main() {
     /*****************/
     /* Inicjalizacja */
     /*****************/
 
     setlocale( LC_CTYPE, "" );
-    initscr(); // Inicjalizacja ncurses
-    curs_set( 0 ); // Wyłączenie wyświetlania kursora
-    cbreak(); // Wyłączenie oczekiwania na enter, teraz każdy bufor będzie wczytywał tylko jeden znak
-    noecho(); // Wyłączenie wyświetlania wpisanego znaku
-    keypad( stdscr, TRUE ); // Włączenie pobierania specjalnych klawiszy
+    initscr();
+    curs_set( 0 );
+    cbreak();
+    noecho();
+    keypad( stdscr, TRUE );
     start_color();
 
-    int startx, starty; // Współrzędne lewego górnego rogu okna
+    int startx, starty;
     int startx2, starty2;
     int startx3, starty3;
-    int wx, wy; // Szerokość i wysokość terminala
-    int hei = 22, wid = 82; // Wysokość i szerokość okienka głównego
-    int hei2 = 4, wid2 = wid; // Wysokość i szerokość okienka tekstowego
+    int wx, wy;
+    int hei = 22, wid = 82;
+    int hei2 = 4, wid2 = wid;
     int hei3 = 8, wid3 = 12;
     int hei4 = 11, wid4 = wid3;
     int hei5 = 3, wid5 = wid3;
-    int world; // Aktualny świat
+    int world;
 
-    getmaxyx( stdscr, wy, wx ); // Pobranie wysokości i szerokości terminala
+    getmaxyx( stdscr, wy, wx );
 
     if( wx < 94 || wy < 26 ) {
         endwin();
@@ -57,12 +58,8 @@ int main() {
         endwin();
         printf( "Wymagana jest obsługa kolorów w terminalu.\n" );
         exit( 1 );
-	}
-    if( can_change_color() == false ) {
-        endwin();
-        printf( "Terminal musi obslugiwać 256 kolorów.\n" );
-        exit( 1 );
     }
+    
     start_color();
 
     WINDOW *mwin;
@@ -90,15 +87,7 @@ int main() {
     windows.ewin = ewin;
     windows.dwin = dwin;
 
-    /************************/
-    /* Deklaracje zmiennych */
-    /************************/
-
     bool endGame = false;
-
-    /*******/
-    /* Gra */
-    /*******/
 
     while( true ) {
         init_windows( windows );
@@ -200,7 +189,7 @@ void init_windows( Windows windows ) {
     printBorder( windows.twin );
 
     wmove( windows.twin, 1, 2 );
-    wprintw( windows.twin, "Gra ASCII, \"Przygody kloca\". Najpierw przeczytaj pomoc potem graj ;)" );
+    wprintw( windows.twin, "Gra ASCII, \"Przygody kloca\"." );
     wmove( windows.twin, 2, 2 );
     wprintw( windows.twin, "© Kamil Poniatowski 2015" );
 
@@ -232,7 +221,7 @@ int start_new_game( WINDOW *win ) {
             break;
 
     closedir( dir );
-    if( n <= 2 ) // Folder z zapisami pusty
+    if( n <= 2 )
         return true;
     else {
         wclear( win );
