@@ -1,3 +1,5 @@
+Gra ASCII pod system GNU/Linux
+
 Szczegółowa dokumentacja w pliku dokumentacja.pdf
 
 
