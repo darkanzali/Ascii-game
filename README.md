@@ -25,4 +25,4 @@ COLORTERM=1
 Ważna informacja!
 
 
-Wiem że gra nie jest napisana w sposób idealny albo nawet zbliżony do dobrego ale była pisana w dość krótkim terminie i nie było czasu na dokładniejsze dopracowywanie.
+Wiem że gra nie jest napisana w sposób idealny albo nawet zbliżony do dobrego ale była pisana w dość krótkim przedziale czasowym i nie było czasu na dokładniejsze dopracowywanie.
